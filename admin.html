@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Mode - لوحة المدير</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1><i class="fas fa-crown"></i> لوحة المدير - Focus Mode</h1>
+            <div style="background: #facc1520; padding: 0.5rem 1rem; border-radius: 2rem;">
+                <i class="fas fa-user-shield"></i> مرحباً <strong id="adminName">المدير</strong> | 
+                <button onclick="logout()" style="background:none; border:none; color:#facc15; cursor:pointer;">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+                </button>
+            </div>
+        </div>
+        
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="showTab('answers')"><i class="fas fa-inbox"></i> الإجابات</button>
+            <button class="btn btn-outline" onclick="showTab('students')"><i class="fas fa-users"></i> إدارة الطلاب</button>
+            <button class="btn btn-outline" onclick="showTab('stats')"><i class="fas fa-chart-line"></i> الإحصائيات</button>
+            <button class="btn btn-outline" onclick="showTab('schedule')"><i class="fas fa-calendar-alt"></i> الجدول</button>
+            <button class="btn btn-outline" onclick="showTab('files')"><i class="fas fa-folder-open"></i> الملفات</button>
+            <button class="btn btn-outline" onclick="showTab('leaderboard')"><i class="fas fa-trophy"></i> المتصدرين</button>
+            <button class="btn btn-outline" onclick="showTab('backup')"><i class="fas fa-database"></i> نسخ احتياطي</button>
+        </div>
+
+        <!-- تبويب الإجابات -->
+        <div id="tab-answers" class="dashboard-grid" style="display: grid;">
+            <div class="sidebar-card">
+                <div class="timer-section">
+                    <h3><i class="fas fa-hourglass-half"></i> مؤقت الدراسة</h3>
+                    <div class="timer-display" id="timerDisplay">25:00</div>
+                    <div class="progress-bar"><div class="progress-fill" id="timerProgress"></div></div>
+                    <div class="timer-controls">
+                        <input type="number" id="minutesInput" value="25" min="1" max="120">
+                        <button class="btn btn-primary" id="startTimerBtn"><i class="fas fa-play"></i> بدء</button>
+                        <button class="btn btn-outline" id="pauseTimerBtn"><i class="fas fa-pause"></i></button>
+                        <button class="btn btn-outline" id="resetTimerBtn"><i class="fas fa-undo"></i></button>
+                    </div>
+                    <div class="timer-status" id="timerStatus">⏳ جاهز</div>
+                </div>
+                <div class="prayer-section">
+                    <h3><i class="fas fa-mosque"></i> أوقات الصلاة - أبوظبي</h3>
+                    <div class="prayer-grid" id="prayerTimes"></div>
+                    <div id="nextPrayerMsg" class="next-prayer"></div>
+                </div>
+            </div>
+            <div class="answers-panel">
+                <div class="toolbar">
+                    <input type="text" id="searchInput" placeholder="🔍 بحث في الإجابات..." style="flex:1; background:rgba(0,0,0,0.3); border:1px solid #334155; border-radius:2rem; padding:0.5rem 1rem; color:white;">
+                    <select id="filterStudent" style="background:rgba(0,0,0,0.3); border:1px solid #334155; border-radius:2rem; padding:0.5rem;">
+                        <option value="">كل الطلاب</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3><i class="fas fa-inbox"></i> إجابات الطلاب</h3>
+                    <button id="clearAllBtn" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> مسح الكل</button>
+                </div>
+                <div class="answers-list" id="answersList"><div class="empty-state">📭 في انتظار إجابات الطلاب...</div></div>
+                <div class="broadcast-area">
+                    <textarea id="broadcastMsg" rows="2" placeholder="رسالة جماعية لجميع الطلاب..."></textarea>
+                    <button class="btn btn-primary btn-block" onclick="sendBroadcast()"><i class="fas fa-bullhorn"></i> إرسال رسالة للجميع</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب إدارة الطلاب -->
+        <div id="tab-students" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3><i class="fas fa-users"></i> إدارة حسابات الطلاب</h3>
+                    <button class="btn btn-primary" onclick="showAddStudentModal()"><i class="fas fa-plus"></i> إضافة طالب</button>
+                </div>
+                <div id="studentsList" class="answers-list"></div>
+            </div>
+        </div>
+
+        <!-- تبويب الإحصائيات -->
+        <div id="tab-stats" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-chart-line"></i> إحصائيات متقدمة</h3>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="totalStudents">0</div><div>👥 إجمالي الطلاب</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalSubmissions">0</div><div>📝 إجمالي الإجابات</div></div>
+                    <div class="stat-card"><div class="stat-number" id="correctRate">0%</div><div>✅ نسبة الإجابات الصحيحة</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalPoints">0</div><div>⭐ إجمالي النقاط</div></div>
+                </div>
+                <div class="chart-container"><h4>أداء الطلاب</h4><div id="studentChart"></div></div>
+            </div>
+        </div>
+
+        <!-- تبويب الجدول -->
+        <div id="tab-schedule" style="display: none;">
+            <div class="schedule-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3><i class="fas fa-calendar-alt"></i> جدول المذاكرة</h3>
+                    <button class="btn btn-primary" onclick="addScheduleItem()"><i class="fas fa-plus"></i> إضافة مهمة</button>
+                </div>
+                <div id="scheduleList" class="schedule-list"></div>
+            </div>
+        </div>
+
+        <!-- تبويب الملفات -->
+        <div id="tab-files" style="display: none;">
+            <div class="files-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3><i class="fas fa-folder-open"></i> الملفات المشتركة</h3>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()"><i class="fas fa-upload"></i> رفع ملف</button>
+                    <input type="file" id="fileInput" style="display: none;" multiple>
+                </div>
+                <div id="sharedFilesList" class="files-grid"></div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>رابط مفيد للمشاركة</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="linkUrl" placeholder="https://..." style="flex:1;">
+                        <input type="text" id="linkTitle" placeholder="عنوان الرابط" style="flex:1;">
+                        <button class="btn btn-primary" onclick="addLink()">➕ إضافة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب المتصدرين -->
+        <div id="tab-leaderboard" style="display: none;">
+            <div class="leaderboard-card">
+                <h3><i class="fas fa-trophy"></i> لوحة المتصدرين</h3>
+                <div id="leaderboardList" class="leaderboard-list"></div>
+                <div class="stats-card" style="margin-top: 1rem;">
+                    <h4>🏅 الشارات</h4>
+                    <div id="badgesSummary"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب النسخ الاحتياطي -->
+        <div id="tab-backup" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-database"></i> النسخ الاحتياطي واستعادة البيانات</h3>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="backupData()"><i class="fas fa-download"></i> تحميل نسخة احتياطية</button>
+                    <button class="btn btn-outline" onclick="document.getElementById('restoreFile').click()"><i class="fas fa-upload"></i> استعادة من نسخة</button>
+                    <input type="file" id="restoreFile" style="display: none;" accept=".json">
+                    <button class="btn btn-danger" onclick="resetAllData()"><i class="fas fa-trash-alt"></i> إعادة تعيين الكل</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // التحقق من صلاحية المدير
+        const currentUser = JSON.parse(localStorage.getItem('focusMode_currentUser'));
+        if (!currentUser || currentUser.role !== 'admin') { window.location.href = 'login.html'; }
+        document.getElementById('adminName').innerText = currentUser.username;
+        
+        let currentTab = 'answers';
+        function showTab(tab) {
+            document.getElementById('tab-answers').style.display = 'none';
+            document.getElementById('tab-students').style.display = 'none';
+            document.getElementById('tab-stats').style.display = 'none';
+            document.getElementById('tab-schedule').style.display = 'none';
+            document.getElementById('tab-files').style.display = 'none';
+            document.getElementById('tab-leaderboard').style.display = 'none';
+            document.getElementById('tab-backup').style.display = 'none';
+            document.getElementById(`tab-${tab}`).style.display = 'grid';
+            currentTab = tab;
+            if (tab === 'students') renderStudentsList();
+            if (tab === 'stats') renderStats();
+            if (tab === 'schedule') renderSchedule();
+            if (tab === 'files') renderFiles();
+            if (tab === 'leaderboard') renderLeaderboard();
+        }
+        
+        function logout() { localStorage.removeItem('focusMode_currentUser'); window.location.href = 'login.html'; }
+        
+        // TIMER
+        let timerInterval = null, timeLeft = 25 * 60, isRunning = false;
+        const timerDisplay = document.getElementById('timerDisplay'), minutesInput = document.getElementById('minutesInput'), timerStatus = document.getElementById('timerStatus');
+        const timerProgress = document.getElementById('timerProgress');
+        let totalInitialTime = 25 * 60;
+        
+        function updateTimerUI() {
+            let mins = Math.floor(timeLeft/60), secs = timeLeft%60;
+            timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            if (totalInitialTime > 0) {
+                let percent = ((totalInitialTime - timeLeft) / totalInitialTime) * 100;
+                timerProgress.style.width = `${percent}%`;
+            }
+        }
+        
+        function playSound(freq=880, duration=0.35) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.value = freq; gain.gain.value = 0.2;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+        
+        function startTimer() {
+            if(isRunning) return;
+            if(timerInterval) clearInterval(timerInterval);
+            totalInitialTime = timeLeft;
+            timerInterval = setInterval(() => {
+                if(timeLeft > 0) { timeLeft--; updateTimerUI(); timerDisplay.classList.add('timer-running');
+                    if(timeLeft === 0) { clearInterval(timerInterval); isRunning = false; timerStatus.innerText = "✅ انتهى الوقت!"; playSound(); timerDisplay.classList.remove('timer-running'); }
+                }
+            }, 1000);
+            isRunning = true; timerStatus.innerText = "📚 جاري الدراسة...";
+        }
+        function pauseTimer() { if(timerInterval) clearInterval(timerInterval); isRunning = false; timerStatus.innerText = "⏸ متوقف"; timerDisplay.classList.remove('timer-running'); }
+        function resetTimer() { pauseTimer(); let nm = parseInt(minutesInput.value) || 25; timeLeft = nm * 60; totalInitialTime = timeLeft; updateTimerUI(); timerStatus.innerText = "🔄 تم إعادة الضبط"; }
+        document.getElementById('startTimerBtn')?.addEventListener('click', startTimer);
+        document.getElementById('pauseTimerBtn')?.addEventListener('click', pauseTimer);
+        document.getElementById('resetTimerBtn')?.addEventListener('click', resetTimer);
+        resetTimer();
+        
+        // أوقات الصلاة
+        let lastNotifiedPrayer = "";
+        async function fetchPrayerTimes() {
+            try {
+                const d = new Date(), url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
+                const res = await fetch(url), data = await res.json();
+                if(data.code === 200) {
+                    const t = data.data.timings;
+                    const prayers = [{name:'الفجر',time:t.Fajr},{name:'الظهر',time:t.Dhuhr},{name:'العصر',time:t.Asr},{name:'المغرب',time:t.Maghrib},{name:'العشاء',time:t.Isha}];
+                    let html = '';
+                    prayers.forEach(p => html += `<div class="prayer-item"><span class="prayer-name">${p.name}</span><span class="prayer-time">${p.time}</span></div>`);
+                    document.getElementById('prayerTimes').innerHTML = html;
+                    const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+                    for(let p of prayers) {
+                        let [h,m] = p.time.split(':'); let pm = parseInt(h)*60+parseInt(m);
+                        if(Math.abs(nowMin - pm) <= 2 && lastNotifiedPrayer !== p.name) { playSound(660,0.3); setTimeout(()=>playSound(880,0.3),200); lastNotifiedPrayer = p.name;
+                            if(Notification.permission === 'granted') new Notification(`🕌 صلاة ${p.name}`, {body:'حان وقت الصلاة', icon:'https://cdn-icons-png.flaticon.com/512/306/306917.png'});
+                        }
+                    }
+                    let next = null, minDiff = Infinity;
+                    for(let p of prayers) {
+                        let [h,m] = p.time.split(':'); let pm = parseInt(h)*60+parseInt(m); let diff = pm - nowMin;
+                        if(diff > 0 && diff < minDiff) { minDiff = diff; next = p; }
+                    }
+                    if(!next) next = prayers[0];
+                    document.getElementById('nextPrayerMsg').innerHTML = `🕋 القادمة: ${next.name} ${next.time} (بعد ${Math.floor(minDiff/60)} س ${minDiff%60} د)`;
+                }
+            } catch(e) {}
+        }
+        fetchPrayerTimes(); setInterval(fetchPrayerTimes, 60000);
+        if(Notification.permission !== 'granted') Notification.requestPermission();
+        
+        // الثيم
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const btn = document.getElementById('themeToggle');
+            btn.innerHTML = document.body.classList.contains('light-theme') ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        }
+        if(localStorage.getItem('theme') === 'light') toggleTheme();
+        
+        // الدوال الأساسية
+        function getSubmissions() { return JSON.parse(localStorage.getItem('focusMode_submissions')) || []; }
+        function saveSubmissions(s) { localStorage.setItem('focusMode_submissions', JSON.stringify(s)); }
+        function getPoints() { return JSON.parse(localStorage.getItem('focusMode_points')) || {}; }
+        function savePoints(p) { localStorage.setItem('focusMode_points', JSON.stringify(p)); }
+        function getSchedule() { return JSON.parse(localStorage.getItem('focusMode_schedule')) || []; }
+        function saveSchedule(s) { localStorage.setItem('focusMode_schedule', JSON.stringify(s)); }
+        function getFiles() { return JSON.parse(localStorage.getItem('focusMode_files')) || []; }
+        function saveFiles(f) { localStorage.setItem('focusMode_files', JSON.stringify(f)); }
+        function getStudents() { return JSON.parse(localStorage.getItem('focusMode_students')) || []; }
+        function saveStudents(s) { localStorage.setItem('focusMode_students', JSON.stringify(s)); }
+        
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+        
+        function updatePoints(studentName, pointsEarned) {
+            let p = getPoints();
+            if(!p[studentName]) p[studentName] = { points: 0, badges: [] };
+            p[studentName].points += pointsEarned;
+            if(p[studentName].points >= 50 && !p[studentName].badges.includes('نجم')) p[studentName].badges.push('نجم');
+            if(p[studentName].points >= 100 && !p[studentName].badges.includes('عبقري')) p[studentName].badges.push('عبقري');
+            if(p[studentName].points >= 200 && !p[studentName].badges.includes('أسطورة')) p[studentName].badges.push('أسطورة');
+            savePoints(p);
+        }
+        
+        function renderAnswers() {
+            let submissions = getSubmissions();
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const filterStudent = document.getElementById('filterStudent')?.value || '';
+            if(filterStudent) submissions = submissions.filter(s => s.studentName === filterStudent);
+            if(searchTerm) submissions = submissions.filter(s => s.text?.toLowerCase().includes(searchTerm) || s.studentName.toLowerCase().includes(searchTerm));
+            const container = document.getElementById('answersList');
+            if(submissions.length === 0) { container.innerHTML = '<div class="empty-state">📭 لا توجد إجابات</div>'; return; }
+            let html = '';
+            submissions.forEach((sub, idx) => {
+                const statusBadge = sub.grade === 'correct' ? '<span class="badge-correct">✓ صحيح +5</span>' : (sub.grade === 'wrong' ? '<span class="badge-wrong">✗ خطأ</span>' : '<span class="badge-pending">⏳ قيد المراجعة</span>');
+                html += `<div class="answer-card"><div class="answer-header"><div><i class="fas fa-user-circle"></i> <strong>${escapeHtml(sub.studentName)}</strong> <small>${new Date(sub.timestamp).toLocaleString()}</small></div>${statusBadge}</div>
+                <div class="answer-content">${sub.text ? `<div class="answer-text">📝 ${escapeHtml(sub.text)}</div>` : ''}${sub.image ? `<img src="${sub.image}" style="max-width:100%; max-height:150px; border-radius:12px;">` : ''}</div>
+                ${sub.feedback ? `<div class="feedback-msg"><i class="fas fa-comment-dots"></i> ${escapeHtml(sub.feedback)}</div>` : ''}
+                <div class="action-buttons"><button class="btn-correct" data-idx="${idx}">✔️ صحيح</button><button class="btn-wrong" data-idx="${idx}">❌ خطأ</button><button class="btn-danger btn-sm" data-delete="${idx}"><i class="fas fa-trash"></i></button></div></div>`;
+            });
+            container.innerHTML = html;
+            document.querySelectorAll('.btn-correct').forEach(btn => btn.addEventListener('click', (e) => { const idx = parseInt(btn.dataset.idx); updateGrade(idx, 'correct'); }));
+            document.querySelectorAll('.btn-wrong').forEach(btn => btn.addEventListener('click', (e) => { const idx = parseInt(btn.dataset.idx); updateGrade(idx, 'wrong'); }));
+            document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', (e) => { const idx = parseInt(btn.dataset.delete); deleteSubmission(idx); }));
+            updateFilterStudents();
+        }
+        
+        function updateGrade(idx, grade) {
+            let subs = getSubmissions();
+            if(idx < 0 || idx >= subs.length) return;
+            subs[idx].grade = grade;
+            subs[idx].feedback = grade === 'correct' ? '✅ إجابتك صحيحة! أحسنت (+5 نقاط)' : '❌ الإجابة غير صحيحة، حاول مرة أخرى';
+            if(grade === 'correct') updatePoints(subs[idx].studentName, 5);
+            saveSubmissions(subs);
+            renderAnswers();
+            playSound();
+        }
+        
+        function deleteSubmission(idx) {
+            let subs = getSubmissions();
+            if(confirm('حذف هذه الإجابة؟')) { subs.splice(idx, 1); saveSubmissions(subs); renderAnswers(); }
+        }
+        
+        function updateFilterStudents() {
+            const subs = getSubmissions();
+            const students = [...new Set(subs.map(s => s.studentName))];
+            const select = document.getElementById('filterStudent');
+            if(select) { select.innerHTML = '<option value="">كل الطلاب</option>' + students.map(s => `<option value="${s}">${s}</option>`).join(''); }
+        }
+        
+        function sendBroadcast() {
+            const msg = document.getElementById('broadcastMsg')?.value;
+            if(!msg) { alert('اكتب رسالة أولاً'); return; }
+            localStorage.setItem('focusMode_broadcast', JSON.stringify({ msg, time: Date.now() }));
+            alert('✅ تم إرسال الرسالة لجميع الطلاب');
+            document.getElementById('broadcastMsg').value = '';
+        }
+        
+        function renderStudentsList() {
+            const students = getStudents();
+            const container = document.getElementById('studentsList');
+            if(students.length === 0) { container.innerHTML = '<div class="empty-state">لا يوجد طلاب</div>'; return; }
+            let html = '';
+            students.forEach((s, idx) => {
+                html += `<div class="answer-card"><div><strong>${escapeHtml(s.username)}</strong><br><small>${s.createdAt ? new Date(s.createdAt).toLocaleDateString() : ''}</small></div><div><button class="btn-danger btn-sm" onclick="deleteStudent('${s.username}')"><i class="fas fa-trash"></i> حذف</button></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+        
+        function deleteStudent(username) {
+            if(confirm(`حذف الطالب ${username}؟`)) {
+                let students = getStudents().filter(s => s.username !== username);
+                saveStudents(students);
+                renderStudentsList();
+            }
+        }
+        
+        function showAddStudentModal() {
+            let uname = prompt('اسم المستخدم للطالب الجديد:');
+            if(!uname) return;
+            let pwd = prompt('كلمة المرور:');
+            if(!pwd) return;
+            let students = getStudents();
+            if(students.find(s => s.username === uname)) { alert('الاسم موجود'); return; }
+            students.push({ username: uname, password: pwd, displayName: uname, role: 'student', createdAt: new Date().toISOString() });
+            saveStudents(students);
+            renderStudentsList();
+            alert('✅ تم إضافة الطالب');
+        }
+        
+        function renderStats() {
+            const subs = getSubmissions();
+            const students = [...new Set(subs.map(s=>s.studentName))];
+            const correctCount = subs.filter(s=>s.grade==='correct').length;
+            const correctRate = subs.length ? Math.round((correctCount/subs.length)*100) : 0;
+            const points = getPoints(); let totalPoints = 0; for(let n in points) totalPoints += points[n].points;
+            document.getElementById('totalStudents').innerText = students.length;
+            document.getElementById('totalSubmissions').innerText = subs.length;
+            document.getElementById('correctRate').innerText = `${correctRate}%`;
+            document.getElementById('totalPoints').innerText = totalPoints;
+            let chartHtml = '', studentStats = {};
+            subs.forEach(s => { if(!studentStats[s.studentName]) studentStats[s.studentName] = {correct:0,total:0}; studentStats[s.studentName].total++; if(s.grade==='correct') studentStats[s.studentName].correct++; });
+            for(let n in studentStats) {
+                let percent = Math.round((studentStats[n].correct/studentStats[n].total)*100);
+                chartHtml += `<div><div style="display:flex; justify-content:space-between;"><span>${n}</span><span>${percent}%</span></div><div class="chart-bar"><div class="chart-fill" style="width:${percent}%;">${percent}%</div></div></div>`;
+            }
+            document.getElementById('studentChart').innerHTML = chartHtml || '<div class="empty-state">لا توجد بيانات</div>';
+        }
+        
+        function renderSchedule() {
+            const schedule = getSchedule();
+            const container = document.getElementById('scheduleList');
+            if(schedule.length === 0) { container.innerHTML = '<div class="empty-state">📅 لا توجد مهام</div>'; return; }
+            let html = '';
+            schedule.forEach((item, idx) => { html += `<div class="schedule-item"><div class="schedule-time">${item.time}</div><div class="schedule-task">${escapeHtml(item.task)}</div><div><span style="background:${item.completed?'#059669':'#475569'}; padding:0.2rem 0.6rem; border-radius:1rem;">${item.completed?'تم':'قادم'}</span><button class="btn btn-sm" style="background:#3b82f6; margin-right:5px;" onclick="toggleComplete(${idx})"><i class="fas fa-check"></i></button><button class="btn-danger btn-sm" onclick="deleteItem(${idx})"><i class="fas fa-trash"></i></button></div></div>`; });
+            container.innerHTML = html;
+        }
+        function addScheduleItem() { let t = prompt('الوقت (مثال: 10:30 ص)'); let task = prompt('المهمة'); if(t && task) { let s = getSchedule(); s.push({time:t, task, completed:false}); saveSchedule(s); renderSchedule(); } }
+        function toggleComplete(idx) { let s = getSchedule(); if(s[idx]) s[idx].completed = !s[idx].completed; saveSchedule(s); renderSchedule(); }
+        function deleteItem(idx) { let s = getSchedule(); s.splice(idx,1); saveSchedule(s); renderSchedule(); }
+        
+        function renderFiles() {
+            const files = getFiles();
+            const container = document.getElementById('sharedFilesList');
+            if(files.length === 0) { container.innerHTML = '<div class="empty-state">📂 لا توجد ملفات</div>'; return; }
+            let html = '';
+            files.forEach((file, idx) => { html += `<div class="file-item"><div class="file-icon"><i class="fas ${file.isLink ? 'fa-link' : 'fa-file'}"></i></div><div class="file-name">${escapeHtml(file.name)}</div><div><button class="file-download" onclick="downloadFile(${idx})"><i class="fas ${file.isLink ? 'fa-external-link-alt' : 'fa-download'}"></i></button><button class="btn-danger btn-sm" onclick="deleteFile(${idx})"><i class="fas fa-trash"></i></button></div></div>`; });
+            container.innerHTML = html;
+        }
+        function addLink() { let url = document.getElementById('linkUrl')?.value, title = document.getElementById('linkTitle')?.value; if(url && title) { let f = getFiles(); f.push({name: title, url: url, isLink: true}); saveFiles(f); renderFiles(); document.getElementById('linkUrl').value = ''; document.getElementById('linkTitle').value = ''; } else alert('ادخل الرابط والعنوان'); }
+        function downloadFile(idx) { let f = getFiles()[idx]; if(f.isLink) window.open(f.url, '_blank'); else if(f.data) { let a = document.createElement('a'); a.href = f.data; a.download = f.name; a.click(); } }
+        function deleteFile(idx) { let f = getFiles(); f.splice(idx,1); saveFiles(f); renderFiles(); }
+        document.getElementById('fileInput')?.addEventListener('change', (e) => { let files = Array.from(e.target.files), existing = getFiles(); files.forEach(file => { let reader = new FileReader(); reader.onload = (ev) => { existing.push({name: file.name, data: ev.target.result, type: file.type, isLink: false}); saveFiles(existing); renderFiles(); }; reader.readAsDataURL(file); }); });
+        
+        function renderLeaderboard() {
+            const points = getPoints();
+            let leaderboard = []; for(let n in points) leaderboard.push({name:n, points:points[n].points, badges:points[n].badges});
+            leaderboard.sort((a,b)=>b.points - a.points);
+            const container = document.getElementById('leaderboardList');
+            if(leaderboard.length === 0) container.innerHTML = '<div class="empty-state">🏆 لا توجد نقاط</div>';
+            else {
+                let html = '';
+                leaderboard.forEach((s, idx) => { let rc = idx===0?'rank-1':(idx===1?'rank-2':(idx===2?'rank-3':'')); html += `<div class="leaderboard-item ${rc}"><div><strong>#${idx+1}</strong> ${s.name}</div><div><i class="fas fa-star" style="color:#facc15;"></i> ${s.points} نقطة</div><div>${s.badges.map(b=>`🏅 ${b}`).join(' ')||''}</div></div>`; });
+                container.innerHTML = html;
+            }
+        }
+        
+        function exportToPDF() { const element = document.getElementById('answersList'); html2pdf().from(element).save('focusmode_report.pdf'); }
+        
+        function backupData() {
+            const data = { submissions: getSubmissions(), points: getPoints(), schedule: getSchedule(), files: getFiles(), students: getStudents() };
+            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `focusmode_backup_${new Date().toISOString().slice(0,19)}.json`; a.click();
+        }
+        document.getElementById('restoreFile')?.addEventListener('change', (e) => {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if(data.submissions) saveSubmissions(data.submissions); if(data.points) savePoints(data.points); if(data.schedule) saveSchedule(data.schedule); if(data.files) saveFiles(data.files); if(data.students) saveStudents(data.students); alert('✅ تم استعادة البيانات'); location.reload(); } catch(e) { alert('ملف غير صالح'); } };
+            reader.readAsText(file);
+        });
+        
+        function resetAllData() { if(confirm('⚠️ هل أنت متأكد؟ هذا سيمسح كل شيء!')) { localStorage.clear(); alert('تم المسح'); window.location.href = 'login.html'; } }
+        
+        setInterval(() => { renderAnswers(); if(currentTab === 'stats') renderStats(); if(currentTab === 'schedule') renderSchedule(); if(currentTab === 'files') renderFiles(); if(currentTab === 'leaderboard') renderLeaderboard(); }, 3000);
+        document.getElementById('clearAllBtn')?.addEventListener('click', () => { if(confirm('مسح كل الإجابات؟')) { saveSubmissions([]); renderAnswers(); } });
+        document.getElementById('searchInput')?.addEventListener('input', () => renderAnswers());
+        document.getElementById('filterStudent')?.addEventListener('change', () => renderAnswers());
+        
+        renderAnswers(); renderSchedule(); renderFiles();
+    </script>
+</body>
+</html>

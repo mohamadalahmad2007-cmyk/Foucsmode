@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Mode - صفحة الطالب</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1><i class="fas fa-user-graduate"></i> Focus Mode - الطالب</h1>
+            <div style="background: #3b82f620; padding: 0.5rem 1rem; border-radius: 2rem;">
+                <i class="fas fa-user"></i> مرحباً <strong id="studentNameDisplay"></strong> | 
+                <button onclick="logout()" style="background:none; border:none; color:#facc15; cursor:pointer;">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+                </button>
+            </div>
+        </div>
+
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+
+        <div class="student-grid">
+            <!-- قسم رفع الإجابة -->
+            <div class="submit-card">
+                <h3><i class="fas fa-upload"></i> رفع إجابتك</h3>
+                <div class="form-group">
+                    <label>👤 اسمك</label>
+                    <input type="text" id="studentName" placeholder="اسمك" disabled>
+                </div>
+                <div class="form-group">
+                    <label>📝 إجابتك (نص)</label>
+                    <textarea id="answerText" rows="3" placeholder="اكتب حلك هنا..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>🖼️ أو ارفع صورة الحل</label>
+                    <input type="file" id="answerImage" accept="image/*">
+                    <div id="imagePreview"></div>
+                </div>
+                <button id="submitBtn" class="btn btn-primary btn-block">
+                    <i class="fas fa-paper-plane"></i> إرسال الإجابة
+                </button>
+                <div id="submitStatus" class="submit-status"></div>
+                
+                <!-- عرض النقاط -->
+                <div class="stats-card" style="margin-top: 1rem;">
+                    <h4><i class="fas fa-star"></i> رصيدك من النقاط</h4>
+                    <div id="myPointsDisplay" style="font-size: 2rem; color:#facc15;">0</div>
+                    <div id="myBadgesDisplay"></div>
+                </div>
+            </div>
+
+            <!-- قسم الردود والجدول والملفات -->
+            <div>
+                <div class="feedback-card">
+                    <h3><i class="fas fa-comments"></i> ردود الأستاذ</h3>
+                    <div id="myFeedback" class="feedback-list">
+                        <div class="empty-state">📬 ستظهر هنا ردود الأستاذ</div>
+                    </div>
+                </div>
+                
+                <div class="schedule-card" style="margin-top: 1rem;">
+                    <h3><i class="fas fa-calendar-alt"></i> جدول المذاكرة اليومي</h3>
+                    <div id="studentScheduleList" class="schedule-list">
+                        <div class="empty-state">📅 يتم التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="files-card" style="margin-top: 1rem;">
+                    <h3><i class="fas fa-folder-open"></i> الملفات المشتركة من الأستاذ</h3>
+                    <div id="studentFilesList" class="files-grid">
+                        <div class="empty-state">📂 جاري التحميل...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // التحقق من تسجيل الدخول
+        const currentUser = JSON.parse(localStorage.getItem('focusMode_currentUser'));
+        if (!currentUser || currentUser.role !== 'student') { 
+            window.location.href = 'login.html'; 
+        }
+        const studentUsername = currentUser.username || currentUser.displayName;
+        
+        function logout() { 
+            localStorage.removeItem('focusMode_currentUser'); 
+            window.location.href = 'login.html'; 
+        }
+        
+        document.getElementById('studentName').value = studentUsername;
+        document.getElementById('studentNameDisplay').innerText = studentUsername;
+        
+        // الثيم
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const btn = document.getElementById('themeToggle');
+            btn.innerHTML = document.body.classList.contains('light-theme') ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        }
+        if(localStorage.getItem('theme') === 'light') toggleTheme();
+        
+        // الدوال الأساسية
+        function getSubmissions() { return JSON.parse(localStorage.getItem('focusMode_submissions')) || []; }
+        function saveSubmissions(s) { localStorage.setItem('focusMode_submissions', JSON.stringify(s)); }
+        function getPoints() { return JSON.parse(localStorage.getItem('focusMode_points')) || {}; }
+        function getSchedule() { return JSON.parse(localStorage.getItem('focusMode_schedule')) || []; }
+        function getFiles() { return JSON.parse(localStorage.getItem('focusMode_files')) || []; }
+        
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+        
+        function loadStudentData() {
+            const pointsData = getPoints();
+            const myPoints = pointsData[studentUsername]?.points || 0;
+            const myBadges = pointsData[studentUsername]?.badges || [];
+            document.getElementById('myPointsDisplay').innerHTML = myPoints;
+            document.getElementById('myBadgesDisplay').innerHTML = myBadges.map(b => `🏅 ${b}`).join(' ') || 'لم تحصل على شارات بعد';
+            loadStudentFeedback();
+            loadStudentSchedule();
+            loadStudentFiles();
+            checkBroadcast();
+        }
+        
+        function loadStudentFeedback() {
+            const submissions = getSubmissions();
+            const mySubs = submissions.filter(s => s.studentName === studentUsername).reverse();
+            if(mySubs.length === 0) { 
+                document.getElementById('myFeedback').innerHTML = '<div class="empty-state">📭 لم ترسل أي إجابة بعد</div>'; 
+                return; 
+            }
+            let html = '';
+            mySubs.forEach(sub => {
+                const statusIcon = sub.grade === 'correct' ? '✅' : (sub.grade === 'wrong' ? '❌' : '⏳');
+                const statusText = sub.grade === 'correct' ? 'صحيح +5 نقاط' : (sub.grade === 'wrong' ? 'خطأ' : 'قيد المراجعة');
+                html += `
+                    <div class="feedback-item ${sub.grade === 'correct' ? 'feedback-correct' : (sub.grade === 'wrong' ? 'feedback-wrong' : 'feedback-pending')}">
+                        <div class="feedback-header">
+                            <span>${statusIcon} ${statusText}</span>
+                            <small>${new Date(sub.timestamp).toLocaleString()}</small>
+                        </div>
+                        <div class="feedback-body">
+                            ${sub.text ? `<div class="your-answer">📝 إجابتك: ${escapeHtml(sub.text)}</div>` : ''}
+                            ${sub.feedback ? `<div class="teacher-reply"><i class="fas fa-chalkboard-teacher"></i> رد الأستاذ: ${escapeHtml(sub.feedback)}</div>` : '<div class="teacher-reply">⏳ ينتظر التصحيح...</div>'}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('myFeedback').innerHTML = html;
+        }
+        
+        function loadStudentSchedule() {
+            const schedule = getSchedule();
+            const container = document.getElementById('studentScheduleList');
+            if(schedule.length === 0) { 
+                container.innerHTML = '<div class="empty-state">📅 لا توجد مهام مضافة بعد</div>'; 
+                return; 
+            }
+            let html = '';
+            schedule.forEach(item => {
+                html += `
+                    <div class="schedule-item">
+                        <div class="schedule-time">${escapeHtml(item.time)}</div>
+                        <div class="schedule-task">${escapeHtml(item.task)}</div>
+                        <div>
+                            <span style="background: ${item.completed ? '#059669' : '#475569'}; padding:0.2rem 0.6rem; border-radius:1rem;">${item.completed ? 'تم' : 'قادم'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        
+        function loadStudentFiles() {
+            const files = getFiles();
+            const container = document.getElementById('studentFilesList');
+            if(files.length === 0) { 
+                container.innerHTML = '<div class="empty-state">📂 لا توجد ملفات مرفوعة بعد</div>'; 
+                return; 
+            }
+            let html = '';
+            files.forEach((file, idx) => {
+                html += `
+                    <div class="file-item">
+                        <div class="file-icon"><i class="fas ${file.isLink ? 'fa-link' : 'fa-file'}"></i></div>
+                        <div class="file-name">${escapeHtml(file.name)}</div>
+                        <div>
+                            <button class="file-download" onclick="openStudentFile(${idx})">
+                                <i class="fas ${file.isLink ? 'fa-external-link-alt' : 'fa-download'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            window.studentFiles = files;
+        }
+        
+        window.openStudentFile = function(idx) {
+            const files = getFiles();
+            const file = files[idx];
+            if(file.isLink) {
+                window.open(file.url, '_blank');
+            } else if(file.data) {
+                const link = document.createElement('a');
+                link.href = file.data;
+                link.download = file.name;
+                link.click();
+            }
+        };
+        
+        function checkBroadcast() {
+            const broadcast = localStorage.getItem('focusMode_broadcast');
+            if(broadcast) {
+                const data = JSON.parse(broadcast);
+                const lastSeen = localStorage.getItem('lastBroadcastSeen') || 0;
+                if(data.time > lastSeen) {
+                    setTimeout(() => {
+                        alert(`📢 رسالة جديدة من الأستاذ:\n\n${data.msg}`);
+                        localStorage.setItem('lastBroadcastSeen', data.time);
+                    }, 500);
+                }
+            }
+        }
+        
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const answerText = document.getElementById('answerText').value.trim();
+            const imageFile = document.getElementById('answerImage').files[0];
+            
+            if (!answerText && !imageFile) {
+                alert('الرجاء كتابة إجابة أو رفع صورة');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('submitStatus');
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+            
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveSubmission(studentUsername, answerText, e.target.result);
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                saveSubmission(studentUsername, answerText, null);
+            }
+        });
+        
+        function saveSubmission(name, text, imageData) {
+            const submissions = getSubmissions();
+            const newSubmission = {
+                id: Date.now(),
+                studentName: name,
+                text: text,
+                image: imageData,
+                timestamp: Date.now(),
+                grade: null,
+                feedback: null
+            };
+            submissions.unshift(newSubmission);
+            localStorage.setItem('focusMode_submissions', JSON.stringify(submissions));
+            
+            document.getElementById('answerText').value = '';
+            document.getElementById('answerImage').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('submitStatus').innerHTML = '✅ تم إرسال إجابتك بنجاح! انتظر رد الأستاذ';
+            
+            setTimeout(() => {
+                document.getElementById('submitStatus').innerHTML = '';
+            }, 3000);
+            
+            loadStudentData();
+            
+            // صوت عند الإرسال
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = 660;
+                gain.gain.value = 0.15;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+                osc.stop(audioCtx.currentTime + 0.25);
+            } catch(e) {}
+        }
+        
+        // معاينة الصورة
+        document.getElementById('answerImage').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    preview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:150px; border-radius:12px; margin-top:8px;">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+        
+        loadStudentData();
+        
+        // تحديث تلقائي كل 3 ثواني
+        setInterval(() => {
+            if(studentUsername) loadStudentData();
+        }, 3000);
+    </script>
+</body>
+</html>

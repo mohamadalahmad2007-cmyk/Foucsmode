@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Mode - تسجيل الدخول</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #0f172a);
+            background-size: 200% 200%;
+            animation: gradientShift 12s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .login-container {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo-animation {
+            font-size: 4rem;
+            animation: bounce 2s infinite;
+            display: inline-block;
+        }
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+            text-align: right;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59,130,246,0.3);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            border-radius: 2rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #1e40af;
+            transform: translateY(-2px);
+        }
+        .btn-login:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #1e40af;
+        }
+        .btn-login:hover {
+            filter: brightness(1.05);
+        }
+        .error-msg {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        .success-msg {
+            color: #10b981;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        .roles-info {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            text-align: right;
+        }
+        .roles-info span {
+            color: #facc15;
+        }
+        footer {
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .clear-btn {
+            margin-top: 1rem;
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover {
+            background: #ef4444;
+            transform: scale(1.02);
+        }
+        .typing-text {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            min-height: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-animation">🧘</div>
+        <h1>Focus Mode</h1>
+        <div class="subtitle">نظام إدارة المجموعات الدراسية</div>
+        <div class="typing-text" id="typingText"></div>
+        
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('login')">تسجيل الدخول</button>
+            <button class="tab-btn" onclick="showTab('register')">إنشاء حساب جديد</button>
+        </div>
+        
+        <!-- قسم تسجيل الدخول -->
+        <div id="loginPanel">
+            <div class="form-group">
+                <label>👤 اسم المستخدم</label>
+                <input type="text" id="loginUsername" placeholder="أدخل اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>🔒 كلمة المرور</label>
+                <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور">
+            </div>
+            <button class="btn-login" onclick="doLogin()">دخول <i class="fas fa-arrow-left"></i></button>
+            <div id="loginError" class="error-msg"></div>
+        </div>
+        
+        <!-- قسم إنشاء حساب جديد (للطلاب) -->
+        <div id="registerPanel" style="display: none;">
+            <div class="form-group">
+                <label>👤 اسم المستخدم (سيظهر للأستاذ)</label>
+                <input type="text" id="regUsername" placeholder="اختر اسم مستخدم">
+            </div>
+            <div class="form-group">
+                <label>🔒 كلمة المرور</label>
+                <input type="password" id="regPassword" placeholder="كلمة مرور قوية">
+            </div>
+            <div class="form-group">
+                <label>🔄 تأكيد كلمة المرور</label>
+                <input type="password" id="regConfirmPassword" placeholder="أعد كتابة كلمة المرور">
+            </div>
+            <button class="btn-login" onclick="doRegister()">إنشاء حساب <i class="fas fa-user-plus"></i></button>
+            <div id="registerError" class="error-msg"></div>
+            <div id="registerSuccess" class="success-msg"></div>
+        </div>
+        
+        <div class="roles-info">
+        
+            📌 <span></span> سجل دخول بأسمك و باسوردك<br>
+         
+        </div>
+        
+        <button class="clear-btn" onclick="clearAllData()">⚠️ مسح البيانات وإعادة تعيين</button>
+        
+        <footer>
+            🕌 أوقات الصلاة - أبوظبي | نظام متكامل للمجموعات الدراسية
+        </footer>
+    </div>
+
+    <script>
+        // تأثير كتابة
+        const welcomeMessages = ["مرحباً بك في Focus Mode ✨", "منصة تعليمية متكاملة 📚", "ادرس بذكاء مع زملائك 🧘"];
+        let msgIndex = 0, charIndex = 0;
+        function typeWriter() {
+            if (charIndex < welcomeMessages[msgIndex].length) {
+                document.getElementById('typingText').innerHTML = welcomeMessages[msgIndex].substring(0, charIndex + 1);
+                charIndex++;
+                setTimeout(typeWriter, 80);
+            } else {
+                setTimeout(() => {
+                    charIndex = 0;
+                    msgIndex = (msgIndex + 1) % welcomeMessages.length;
+                    document.getElementById('typingText').innerHTML = '';
+                    typeWriter();
+                }, 3000);
+            }
+        }
+        typeWriter();
+        
+        // الحسابات
+        const USERS = {
+            admin: { password: "admin123#", role: "admin", name: "مدير النظام" },
+            teacher: { password: "teacher123#", role: "teacher", name: "أستاذ" }
+        };
+        
+        const STUDENTS_KEY = "focusMode_students";
+        
+        function getStudents() {
+            let students = JSON.parse(localStorage.getItem(STUDENTS_KEY)) || [];
+            if(students.length === 0) {
+                students = [
+                    { username: "student", password: "student123#", displayName: "طالب تجريبي", role: "student", createdAt: new Date().toISOString() }
+                ];
+                localStorage.setItem(STUDENTS_KEY, JSON.stringify(students));
+            }
+            return students;
+        }
+        
+        function saveStudents(students) {
+            localStorage.setItem(STUDENTS_KEY, JSON.stringify(students));
+        }
+        
+        function showTab(tab) {
+            document.getElementById('loginPanel').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerPanel').style.display = tab === 'register' ? 'block' : 'none';
+            
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                if ((tab === 'login' && idx === 0) || (tab === 'register' && idx === 1)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        function doLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!username || !password) {
+                errorDiv.innerHTML = '⚠️ الرجاء إدخال اسم المستخدم وكلمة المرور';
+                return;
+            }
+            
+            if (USERS[username] && USERS[username].password === password) {
+                localStorage.setItem('focusMode_currentUser', JSON.stringify({
+                    username: username,
+                    role: USERS[username].role,
+                    displayName: USERS[username].name
+                }));
+                if(username === 'admin') window.location.href = 'admin.html';
+                else window.location.href = 'teacher.html';
+                return;
+            }
+            
+            const students = getStudents();
+            const student = students.find(s => s.username === username && s.password === password);
+            if (student) {
+                localStorage.setItem('focusMode_currentUser', JSON.stringify({
+                    username: username,
+                    role: 'student',
+                    displayName: student.displayName
+                }));
+                window.location.href = 'student.html';
+                return;
+            }
+            
+            errorDiv.innerHTML = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+        }
+        
+        function doRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            
+            errorDiv.innerHTML = '';
+            successDiv.innerHTML = '';
+            
+            if (!username || !password) {
+                errorDiv.innerHTML = '⚠️ الرجاء ملء جميع الحقول';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.innerHTML = '⚠️ كلمة المرور وتأكيدها غير متطابقين';
+                return;
+            }
+            
+            if (password.length < 4) {
+                errorDiv.innerHTML = '⚠️ كلمة المرور يجب أن تكون 4 أحرف على الأقل';
+                return;
+            }
+            
+            if (USERS[username]) {
+                errorDiv.innerHTML = '❌ هذا الاسم محجوز للمعلم أو المدير';
+                return;
+            }
+            
+            const students = getStudents();
+            if (students.find(s => s.username === username)) {
+                errorDiv.innerHTML = '❌ اسم المستخدم موجود مسبقاً، اختر اسماً آخر';
+                return;
+            }
+            
+            // إنشاء حساب جديد
+            students.push({
+                username: username,
+                password: password,
+                displayName: username,
+                role: 'student',
+                createdAt: new Date().toISOString()
+            });
+            saveStudents(students);
+            
+            successDiv.innerHTML = '✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول';
+            
+            // مسح الحقول
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+            
+            // بعد 2 ثانية، التبديل إلى تبويب تسجيل الدخول
+            setTimeout(() => {
+                showTab('login');
+                document.getElementById('loginUsername').value = username;
+                document.getElementById('loginPassword').value = password;
+                successDiv.innerHTML = '';
+            }, 2000);
+        }
+        
+        function clearAllData() {
+            if(confirm('⚠️ هل أنت متأكد؟ هذا سيمسح جميع البيانات!')){
+                localStorage.clear();
+                const defaultStudents = [
+                    { username: "student", password: "student123#", displayName: "طالب تجريبي", role: "student", createdAt: new Date().toISOString() }
+                ];
+                localStorage.setItem(STUDENTS_KEY, JSON.stringify(defaultStudents));
+                alert('✅ تم مسح جميع البيانات! أعد تحميل الصفحة');
+                window.location.reload();
+            }
+        }
+        
+        // التحقق من جلسة سابقة
+        const savedUser = localStorage.getItem('focusMode_currentUser');
+        if (savedUser) {
+            const user = JSON.parse(savedUser);
+            if (user.role === 'admin') window.location.href = 'admin.html';
+            else if (user.role === 'teacher') window.location.href = 'teacher.html';
+            else if (user.role === 'student') window.location.href = 'student.html';
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</body>
+</html>
