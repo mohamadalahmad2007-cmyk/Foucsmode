@@ -2,89 +2,180 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Focus Mode - الطالب</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="app-container">
         <div class="header">
             <h1><i class="fas fa-user-graduate"></i> Focus Mode - الطالب</h1>
             <div style="background: #3b82f620; padding: 0.5rem 1rem; border-radius: 2rem;">
-                <i class="fas fa-user"></i> مرحباً <strong id="studentNameDisplay"></strong> | 
-                <button onclick="logout()" style="background:none; border:none; color:#facc15; cursor:pointer;">
-                    <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+                <i class="fas fa-user"></i> مرحباً <strong id="studentNameDisplay"></strong>
+                <button onclick="logout()" style="background:none; border:none; color:#facc15; cursor:pointer; margin-right:1rem;">
+                    <i class="fas fa-sign-out-alt"></i> خروج
                 </button>
             </div>
         </div>
 
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
 
-        <div class="student-grid">
-            <!-- قسم رفع الإجابة -->
+        <!-- أدوات الطالب -->
+        <div class="student-tools">
+            <div class="tool-card" onclick="showSection('study')">
+                <div class="tool-icon">📚</div>
+                <div>الدراسة</div>
+            </div>
+            <div class="tool-card" onclick="showSection('todo')">
+                <div class="tool-icon">✅</div>
+                <div>مهامي</div>
+            </div>
+            <div class="tool-card" onclick="showSection('shop')">
+                <div class="tool-icon">🛒</div>
+                <div>المتجر</div>
+            </div>
+            <div class="tool-card" onclick="showSection('announcements')">
+                <div class="tool-icon">📢</div>
+                <div>إعلانات</div>
+            </div>
+            <div class="tool-card" onclick="showSection('polls')">
+                <div class="tool-icon">🗳️</div>
+                <div>استطلاعات</div>
+            </div>
+            <div class="tool-card" onclick="showSection('prayer')">
+                <div class="tool-icon">🕌</div>
+                <div>الصلاة</div>
+            </div>
+            <div class="tool-card" onclick="showSection('stats')">
+                <div class="tool-icon">📊</div>
+                <div>إحصائياتي</div>
+            </div>
+        </div>
+
+        <!-- ========== قسم الدراسة (الأساسي) ========== -->
+        <div id="section-study" class="student-grid" style="display: grid;">
             <div class="submit-card">
                 <h3><i class="fas fa-upload"></i> رفع إجابتك</h3>
                 <div class="form-group">
-                    <label>👤 اسمك</label>
-                    <input type="text" id="studentName" disabled>
-                </div>
-                <div class="form-group">
-                    <label>📝 إجابتك (نص)</label>
+                    <label>📝 إجابتك</label>
                     <textarea id="answerText" rows="3" placeholder="اكتب حلك هنا..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>🖼️ أو ارفع صورة الحل</label>
+                    <label>🖼️ صورة الحل</label>
                     <input type="file" id="answerImage" accept="image/*">
                     <div id="imagePreview"></div>
                 </div>
-                <button id="submitBtn" class="btn btn-primary btn-block">
-                    <i class="fas fa-paper-plane"></i> إرسال الإجابة
-                </button>
+                <button id="submitBtn" class="btn btn-primary btn-block"><i class="fas fa-paper-plane"></i> إرسال الإجابة</button>
                 <div id="submitStatus" class="submit-status"></div>
                 
-                <!-- عرض النقاط -->
                 <div class="stats-card" style="margin-top: 1rem;">
-                    <h4><i class="fas fa-star"></i> رصيدك من النقاط</h4>
+                    <h4><i class="fas fa-star"></i> رصيدك</h4>
                     <div id="myPointsDisplay" style="font-size: 2rem; color:#facc15;">0</div>
                     <div id="myBadgesDisplay"></div>
                 </div>
             </div>
-
-            <!-- قسم الردود والجدول والملفات -->
             <div>
                 <div class="feedback-card">
                     <h3><i class="fas fa-comments"></i> ردود الأستاذ</h3>
-                    <div id="myFeedback" class="feedback-list">
-                        <div class="empty-state">📬 ستظهر هنا ردود الأستاذ</div>
-                    </div>
+                    <div id="myFeedback" class="feedback-list"></div>
                 </div>
-                
-                <div class="schedule-card" style="margin-top: 1rem;">
-                    <h3><i class="fas fa-calendar-alt"></i> جدول المذاكرة اليومي</h3>
-                    <div id="studentScheduleList" class="schedule-list">
-                        <div class="empty-state">📅 يتم التحميل...</div>
-                    </div>
-                </div>
-                
                 <div class="files-card" style="margin-top: 1rem;">
-                    <h3><i class="fas fa-folder-open"></i> الملفات المشتركة من الأستاذ</h3>
-                    <div id="studentFilesList" class="files-grid">
-                        <div class="empty-state">📂 جاري التحميل...</div>
-                    </div>
+                    <h3><i class="fas fa-folder-open"></i> الملفات المشتركة</h3>
+                    <div id="studentFilesList" class="files-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== قسم قائمة المهام (To-Do List) ========== -->
+        <div id="section-todo" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-check-square"></i> قائمة مهامي اليومية</h3>
+                <div id="todoList" class="todo-list"></div>
+                <div class="add-todo">
+                    <input type="text" id="newTodoText" placeholder="مهمة جديدة...">
+                    <button class="btn btn-primary" onclick="addTodo()"><i class="fas fa-plus"></i> أضف</button>
+                </div>
+                <div style="margin-top: 0.5rem; font-size: 0.7rem; opacity: 0.6;">
+                    ✅ أنجز المهام لتحصل على نقاط إضافية!
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== قسم المتجر الافتراضي ========== -->
+        <div id="section-shop" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-store"></i> المتجر الافتراضي</h3>
+                <div style="margin-bottom: 1rem; text-align: center;">
+                    <span style="background: #facc15; color:#1e293b; padding:0.3rem 1rem; border-radius:2rem;">
+                        ⭐ نقاطك: <span id="shopPoints">0</span>
+                    </span>
+                </div>
+                <div id="shopItems" class="shop-items"></div>
+            </div>
+        </div>
+
+        <!-- ========== قسم الإعلانات ========== -->
+        <div id="section-announcements" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-bullhorn"></i> الإعلانات والتحديثات</h3>
+                <div id="announcementsList" class="announcements-list"></div>
+            </div>
+        </div>
+
+        <!-- ========== قسم استطلاعات الرأي ========== -->
+        <div id="section-polls" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-chart-simple"></i> استطلاعات الرأي</h3>
+                <div id="pollsList"></div>
+            </div>
+        </div>
+
+        <!-- ========== قسم أوقات الصلاة والتركيز ========== -->
+        <div id="section-prayer" style="display: none;">
+            <div class="sidebar-card">
+                <h3><i class="fas fa-mosque"></i> أوقات الصلاة - أبوظبي</h3>
+                <div class="prayer-grid" id="prayerTimes"></div>
+                <div id="nextPrayerMsg" class="next-prayer"></div>
+                <div id="prayerAlert" class="prayer-alert" style="display: none;"></div>
+            </div>
+            <div class="sidebar-card" style="margin-top: 1rem;">
+                <h3><i class="fas fa-hourglass-half"></i> مؤقت التركيز</h3>
+                <div class="timer-display" id="focusTimerDisplay">25:00</div>
+                <div class="timer-controls">
+                    <input type="number" id="focusMinutes" value="25" min="1" max="60">
+                    <button class="btn btn-primary" id="startFocusBtn"><i class="fas fa-play"></i> ابدأ</button>
+                    <button class="btn btn-outline" id="pauseFocusBtn"><i class="fas fa-pause"></i></button>
+                    <button class="btn btn-outline" id="resetFocusBtn"><i class="fas fa-undo"></i></button>
+                </div>
+                <div id="focusStatus" class="timer-status">⏳ جاهز للتركيز</div>
+            </div>
+        </div>
+
+        <!-- ========== قسم الإحصائيات ========== -->
+        <div id="section-stats" style="display: none;">
+            <div class="stats-card">
+                <h3><i class="fas fa-chart-line"></i> إحصائياتي</h3>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="totalAnswers">0</div><div>📝 إجمالي الإجابات</div></div>
+                    <div class="stat-card"><div class="stat-number" id="correctAnswers">0</div><div>✅ الإجابات الصحيحة</div></div>
+                    <div class="stat-card"><div class="stat-number" id="wrongAnswers">0</div><div>❌ الإجابات الخاطئة</div></div>
+                    <div class="stat-card"><div class="stat-number" id="correctRate">0%</div><div>📊 نسبة النجاح</div></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="myChart" width="400" height="200"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
     <script>
-        // 🔥 إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCFydOV8EjlhD4AASTZFU1keYA3I6UQHyw",
             authDomain: "foucsmode-95e4f.firebaseapp.com",
@@ -95,45 +186,25 @@
             measurementId: "G-519W7HSYD7"
         };
         
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        
-        // ☁️ إعدادات Cloudinary
-        const CLOUDINARY_CLOUD_NAME = "dt1lrpvhq";
-        const CLOUDINARY_UPLOAD_PRESET = "focus_mode_preset"; // 🔁 أنشئ هذا الـ Preset في Cloudinary
-        
-        let currentUser = null;
-        let currentUserData = null;
-        
-        // التحقق من تسجيل الدخول
+
+        let currentUser = null, currentUserData = null, currentSection = 'study';
+        let myChart = null;
+
         auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
+            if (!user) { window.location.href = 'login.html'; return; }
             currentUser = user;
             const snapshot = await database.ref(`users/${user.uid}`).once('value');
             currentUserData = snapshot.val();
+            if (!currentUserData || currentUserData.role !== 'student') { window.location.href = 'login.html'; return; }
             
-            if (!currentUserData || currentUserData.role !== 'student') {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            document.getElementById('studentName').value = currentUserData.displayName;
             document.getElementById('studentNameDisplay').innerText = currentUserData.displayName;
-            
-            loadStudentData();
+            loadAllData();
         });
-        
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = 'login.html';
-            });
-        }
+
+        function logout() { auth.signOut().then(() => window.location.href = 'login.html'); }
         
         function toggleTheme() {
             document.body.classList.toggle('light-theme');
@@ -142,243 +213,380 @@
             localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
         }
         if(localStorage.getItem('theme') === 'light') toggleTheme();
-        
-        // ☁️ دالة رفع الصورة إلى Cloudinary
-        async function uploadImageToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            
-            try {
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log("✅ تم رفع الصورة بنجاح:", data.secure_url);
-                return data.secure_url;
-                
-            } catch (error) {
-                console.error("❌ خطأ في رفع الصورة:", error);
-                alert("فشل رفع الصورة. تأكد من إعدادات Cloudinary.");
-                return null;
-            }
+
+        function showSection(section) {
+            document.querySelectorAll('[id^="section-"]').forEach(el => el.style.display = 'none');
+            document.getElementById(`section-${section}`).style.display = 'grid';
+            currentSection = section;
+            if (section === 'todo') loadTodoList();
+            if (section === 'shop') loadShop();
+            if (section === 'announcements') loadAnnouncements();
+            if (section === 'polls') loadPolls();
+            if (section === 'prayer') { fetchPrayerTimes(); initFocusTimer(); }
+            if (section === 'stats') loadStudentStats();
         }
-        
-        async function loadStudentData() {
-            if (!currentUser) return;
-            await loadPoints();
-            await loadStudentFeedback();
-            await loadSchedule();
-            await loadFiles();
-            checkBroadcast();
+
+        async function loadAllData() {
+            loadStudentFeedback();
+            loadFiles();
+            loadPoints();
+            loadTodoList();
+            loadShop();
+            loadAnnouncements();
+            loadPolls();
+            fetchPrayerTimes();
         }
-        
+
         async function loadPoints() {
             const snapshot = await database.ref(`users/${currentUser.uid}/points`).once('value');
             const points = snapshot.val() || 0;
             document.getElementById('myPointsDisplay').innerHTML = points;
-            
+            document.getElementById('shopPoints').innerHTML = points;
             const badgesSnapshot = await database.ref(`users/${currentUser.uid}/badges`).once('value');
             const badges = badgesSnapshot.val() || [];
             document.getElementById('myBadgesDisplay').innerHTML = badges.map(b => `🏅 ${b}`).join(' ') || 'لم تحصل على شارات بعد';
         }
-        
+
         async function loadStudentFeedback() {
-            const submissionsRef = database.ref('submissions');
-            const snapshot = await submissionsRef.orderByChild('studentId').equalTo(currentUser.uid).once('value');
+            const snapshot = await database.ref('submissions').orderByChild('studentId').equalTo(currentUser.uid).once('value');
             const submissions = [];
-            snapshot.forEach((child) => {
-                submissions.push({ id: child.key, ...child.val() });
-            });
+            snapshot.forEach(child => submissions.push({ id: child.key, ...child.val() }));
             submissions.reverse();
-            
-            if (submissions.length === 0) {
-                document.getElementById('myFeedback').innerHTML = '<div class="empty-state">📭 لم ترسل أي إجابة بعد</div>';
-                return;
-            }
-            
+            if (submissions.length === 0) { document.getElementById('myFeedback').innerHTML = '<div class="empty-state">📭 لم ترسل أي إجابة</div>'; return; }
             let html = '';
             submissions.forEach(sub => {
-                const statusIcon = sub.grade === 'correct' ? '✅' : (sub.grade === 'wrong' ? '❌' : '⏳');
-                const statusText = sub.grade === 'correct' ? 'صحيح +5 نقاط' : (sub.grade === 'wrong' ? 'خطأ' : 'قيد المراجعة');
-                html += `
-                    <div class="feedback-item ${sub.grade === 'correct' ? 'feedback-correct' : (sub.grade === 'wrong' ? 'feedback-wrong' : 'feedback-pending')}">
-                        <div class="feedback-header">
-                            <span>${statusIcon} ${statusText}</span>
-                            <small>${new Date(sub.timestamp).toLocaleString()}</small>
-                        </div>
-                        <div class="feedback-body">
-                            ${sub.text ? `<div class="your-answer">📝 إجابتك: ${escapeHtml(sub.text)}</div>` : ''}
-                            ${sub.imageUrl ? `<div class="your-answer">🖼️ <a href="${sub.imageUrl}" target="_blank">عرض الصورة</a></div>` : ''}
-                            ${sub.feedback ? `<div class="teacher-reply"><i class="fas fa-chalkboard-teacher"></i> رد الأستاذ: ${escapeHtml(sub.feedback)}</div>` : '<div class="teacher-reply">⏳ ينتظر التصحيح...</div>'}
-                        </div>
-                    </div>
-                `;
+                html += `<div class="feedback-item ${sub.grade === 'correct' ? 'feedback-correct' : (sub.grade === 'wrong' ? 'feedback-wrong' : 'feedback-pending')}">
+                    <div class="feedback-header"><span>${sub.grade === 'correct' ? '✅ صحيح' : (sub.grade === 'wrong' ? '❌ خطأ' : '⏳ قيد المراجعة')}</span><small>${new Date(sub.timestamp).toLocaleString()}</small></div>
+                    <div class="feedback-body">${sub.text ? `<div class="your-answer">📝 ${escapeHtml(sub.text)}</div>` : ''}${sub.imageUrl ? `<div><a href="${sub.imageUrl}" target="_blank">🖼️ عرض الصورة</a></div>` : ''}${sub.feedback ? `<div class="teacher-reply"><i class="fas fa-chalkboard-teacher"></i> ${escapeHtml(sub.feedback)}</div>` : '<div class="teacher-reply">⏳ ينتظر التصحيح...</div>'}</div>
+                </div>`;
             });
             document.getElementById('myFeedback').innerHTML = html;
         }
-        
-        async function loadSchedule() {
-            const snapshot = await database.ref('schedule').once('value');
-            const schedule = snapshot.val() || {};
-            const container = document.getElementById('studentScheduleList');
-            
-            if (Object.keys(schedule).length === 0) {
-                container.innerHTML = '<div class="empty-state">📅 لا توجد مهام مضافة بعد</div>';
-                return;
-            }
-            
-            let html = '';
-            for (let id in schedule) {
-                const item = schedule[id];
-                html += `
-                    <div class="schedule-item">
-                        <div class="schedule-time">${escapeHtml(item.time)}</div>
-                        <div class="schedule-task">${escapeHtml(item.task)}</div>
-                        <div>
-                            <span style="background: ${item.completed ? '#059669' : '#475569'}; padding:0.2rem 0.6rem; border-radius:1rem;">${item.completed ? 'تم' : 'قادم'}</span>
-                        </div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
-        }
-        
+
         async function loadFiles() {
             const snapshot = await database.ref('files').once('value');
             const files = snapshot.val() || {};
             const container = document.getElementById('studentFilesList');
-            
-            if (Object.keys(files).length === 0) {
-                container.innerHTML = '<div class="empty-state">📂 لا توجد ملفات مرفوعة بعد</div>';
-                return;
-            }
-            
+            if (Object.keys(files).length === 0) { container.innerHTML = '<div class="empty-state">📂 لا توجد ملفات</div>'; return; }
             let html = '';
-            for (let id in files) {
-                const file = files[id];
-                html += `
-                    <div class="file-item">
-                        <div class="file-icon"><i class="fas ${file.isLink ? 'fa-link' : 'fa-file'}"></i></div>
-                        <div class="file-name">${escapeHtml(file.name)}</div>
-                        <div>
-                            <button class="file-download" onclick="window.open('${file.url}', '_blank')">
-                                <i class="fas ${file.isLink ? 'fa-external-link-alt' : 'fa-download'}"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+            for (let id in files) { const f = files[id];
+                html += `<div class="file-item"><div class="file-icon"><i class="fas ${f.isLink ? 'fa-link' : 'fa-file'}"></i></div><div class="file-name">${escapeHtml(f.name)}</div><div><button class="file-download" onclick="window.open('${f.url}', '_blank')"><i class="fas fa-download"></i></button></div></div>`;
             }
             container.innerHTML = html;
         }
-        
-        // إرسال إجابة جديدة
+
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'focus_mode_preset');
+            formData.append('cloud_name', 'dt1lrpvhq');
+            const response = await fetch('https://api.cloudinary.com/v1_1/dt1lrpvhq/image/upload', { method: 'POST', body: formData });
+            const data = await response.json();
+            return data.secure_url;
+        }
+
         document.getElementById('submitBtn').addEventListener('click', async () => {
-            const answerText = document.getElementById('answerText').value.trim();
+            const text = document.getElementById('answerText').value.trim();
             const imageFile = document.getElementById('answerImage').files[0];
-            
-            if (!answerText && !imageFile) {
-                alert('الرجاء كتابة إجابة أو رفع صورة');
-                return;
-            }
-            
-            const statusDiv = document.getElementById('submitStatus');
-            statusDiv.innerHTML = '<span class="loading"></span> جاري الإرسال...';
-            
+            if (!text && !imageFile) { alert('اكتب إجابة أو ارفع صورة'); return; }
+            const status = document.getElementById('submitStatus');
+            status.innerHTML = '<span class="loading"></span> جاري الإرسال...';
             let imageUrl = null;
-            if (imageFile) {
-                statusDiv.innerHTML = '<span class="loading"></span> جاري رفع الصورة...';
-                imageUrl = await uploadImageToCloudinary(imageFile);
-                if (!imageUrl) {
-                    statusDiv.innerHTML = '❌ فشل رفع الصورة';
-                    return;
-                }
-            }
-            
-            statusDiv.innerHTML = '<span class="loading"></span> جاري حفظ الإجابة...';
-            
-            const newSubmission = {
-                studentId: currentUser.uid,
-                studentName: currentUserData.displayName,
-                text: answerText,
-                imageUrl: imageUrl,
-                timestamp: Date.now(),
-                grade: null,
-                feedback: null
-            };
-            
-            await database.ref('submissions').push(newSubmission);
-            
-            document.getElementById('answerText').value = '';
-            document.getElementById('answerImage').value = '';
-            document.getElementById('imagePreview').innerHTML = '';
-            statusDiv.innerHTML = '✅ تم إرسال إجابتك بنجاح! انتظر رد الأستاذ';
-            
-            setTimeout(() => {
-                statusDiv.innerHTML = '';
-            }, 3000);
-            
+            if (imageFile) { imageUrl = await uploadImage(imageFile); if (!imageUrl) { status.innerHTML = '❌ فشل رفع الصورة'; return; } }
+            await database.ref('submissions').push({ studentId: currentUser.uid, studentName: currentUserData.displayName, text: text, imageUrl: imageUrl, timestamp: Date.now(), grade: null, feedback: null });
+            document.getElementById('answerText').value = ''; document.getElementById('answerImage').value = ''; document.getElementById('imagePreview').innerHTML = '';
+            status.innerHTML = '✅ تم الإرسال! انتظر رد الأستاذ';
+            setTimeout(() => status.innerHTML = '', 3000);
             loadStudentFeedback();
-            
-            // صوت عند الإرسال
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.frequency.value = 660;
-                gain.gain.value = 0.15;
-                osc.start();
-                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
-                osc.stop(audioCtx.currentTime + 0.25);
-            } catch(e) {}
         });
-        
-        // معاينة الصورة
+
         document.getElementById('answerImage').addEventListener('change', (e) => {
             const file = e.target.files[0];
             const preview = document.getElementById('imagePreview');
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    preview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:150px; border-radius:12px; margin-top:8px;">`;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.innerHTML = '';
-            }
+            if (file) { const reader = new FileReader(); reader.onload = ev => preview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:150px; border-radius:12px;">`; reader.readAsDataURL(file); }
+            else preview.innerHTML = '';
         });
-        
-        async function checkBroadcast() {
-            const snapshot = await database.ref('broadcast').limitToLast(1).once('value');
-            const broadcast = snapshot.val();
-            if (broadcast) {
-                const lastMsg = Object.values(broadcast)[0];
-                const lastSeen = localStorage.getItem('lastBroadcastSeen') || 0;
-                if (lastMsg.time > lastSeen) {
-                    setTimeout(() => {
-                        alert(`📢 رسالة جديدة من الأستاذ:\n\n${lastMsg.message}`);
-                        localStorage.setItem('lastBroadcastSeen', lastMsg.time);
-                    }, 500);
+
+        // ========== قائمة المهام (To-Do List) ==========
+        async function loadTodoList() {
+            const snapshot = await database.ref(`todos/${currentUser.uid}`).once('value');
+            const todos = snapshot.val() || [];
+            const container = document.getElementById('todoList');
+            if (todos.length === 0) { container.innerHTML = '<div class="empty-state">📝 لا توجد مهام. أضف مهمة جديدة!</div>'; return; }
+            let html = '';
+            todos.forEach((todo, idx) => {
+                html += `<div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <input type="checkbox" class="todo-check" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${idx})">
+                    <span class="todo-text">${escapeHtml(todo.text)}</span>
+                    <button class="todo-delete" onclick="deleteTodo(${idx})"><i class="fas fa-trash"></i></button>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        window.addTodo = async () => {
+            const text = document.getElementById('newTodoText').value.trim();
+            if (!text) { alert('اكتب المهمة'); return; }
+            const snapshot = await database.ref(`todos/${currentUser.uid}`).once('value');
+            const todos = snapshot.val() || [];
+            todos.push({ text: text, completed: false, createdAt: Date.now() });
+            await database.ref(`todos/${currentUser.uid}`).set(todos);
+            document.getElementById('newTodoText').value = '';
+            loadTodoList();
+        }
+
+        window.toggleTodo = async (idx) => {
+            const snapshot = await database.ref(`todos/${currentUser.uid}`).once('value');
+            const todos = snapshot.val() || [];
+            if (todos[idx]) {
+                todos[idx].completed = !todos[idx].completed;
+                await database.ref(`todos/${currentUser.uid}`).set(todos);
+                // مكافأة عند إتمام مهمة
+                if (todos[idx].completed) {
+                    const pointsRef = database.ref(`users/${currentUser.uid}/points`);
+                    const pointsSnap = await pointsRef.once('value');
+                    await pointsRef.set((pointsSnap.val() || 0) + 2);
+                    loadPoints();
                 }
+                loadTodoList();
             }
         }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+
+        window.deleteTodo = async (idx) => {
+            const snapshot = await database.ref(`todos/${currentUser.uid}`).once('value');
+            const todos = snapshot.val() || [];
+            todos.splice(idx, 1);
+            await database.ref(`todos/${currentUser.uid}`).set(todos);
+            loadTodoList();
         }
+
+        // ========== المتجر الافتراضي ==========
+        const shopItemsData = [
+            { id: 'sticker1', name: '🌟 ملصق نجم', icon: '⭐', price: 10, type: 'sticker' },
+            { id: 'sticker2', name: '🎓 ملصق متخرج', icon: '🎓', price: 25, type: 'sticker' },
+            { id: 'sticker3', name: '🏆 ملصق بطل', icon: '🏆', price: 50, type: 'sticker' },
+            { id: 'title1', name: 'لقب: مجتهد', icon: '📚', price: 100, type: 'title' },
+            { id: 'title2', name: 'لقب: عبقري', icon: '🧠', price: 200, type: 'title' },
+            { id: 'bg1', name: 'خلفية ذهبية', icon: '✨', price: 150, type: 'background' }
+        ];
+
+        async function loadShop() {
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+            const userData = userSnapshot.val();
+            const purchased = userData.purchased || [];
+            const points = userData.points || 0;
+            
+            let html = '';
+            shopItemsData.forEach(item => {
+                const owned = purchased.includes(item.id);
+                html += `<div class="shop-item ${owned ? 'disabled' : ''}" onclick="${owned ? '' : `buyItem('${item.id}', ${item.price})`}">
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">💰 ${item.price} نقطة</div>
+                    ${owned ? '<div style="color:#10b981; margin-top:0.5rem;">✅ مملوك</div>' : '<button class="shop-item-buy">شراء</button>'}
+                </div>`;
+            });
+            document.getElementById('shopItems').innerHTML = html;
+        }
+
+        window.buyItem = async (itemId, price) => {
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+            const userData = userSnapshot.val();
+            const points = userData.points || 0;
+            const purchased = userData.purchased || [];
+            
+            if (points < price) {
+                alert(`❌ نقاطك غير كافية! تحتاج ${price} نقطة`);
+                return;
+            }
+            if (purchased.includes(itemId)) {
+                alert('❌你已经买过 هذا العنصر');
+                return;
+            }
+            
+            purchased.push(itemId);
+            await database.ref(`users/${currentUser.uid}`).update({
+                points: points - price,
+                purchased: purchased
+            });
+            
+            // إضافة الشارة أو اللقب حسب النوع
+            const item = shopItemsData.find(i => i.id === itemId);
+            if (item && item.type === 'title') {
+                const badgesSnapshot = await database.ref(`users/${currentUser.uid}/badges`).once('value');
+                let badges = badgesSnapshot.val() || [];
+                if (!badges.includes(item.name)) badges.push(item.name);
+                await database.ref(`users/${currentUser.uid}/badges`).set(badges);
+            }
+            
+            alert(`✅ تم شراء ${item.name} بنجاح!`);
+            loadPoints();
+            loadShop();
+        }
+
+        // ========== الإعلانات ==========
+        async function loadAnnouncements() {
+            const snapshot = await database.ref('announcements').orderByChild('createdAt').once('value');
+            const announcements = [];
+            snapshot.forEach(child => announcements.push({ id: child.key, ...child.val() }));
+            announcements.reverse();
+            const container = document.getElementById('announcementsList');
+            if (announcements.length === 0) { container.innerHTML = '<div class="empty-state">📢 لا توجد إعلانات حالياً</div>'; return; }
+            let html = '';
+            announcements.forEach(ann => {
+                html += `<div class="announcement-item">
+                    <div class="announcement-header">
+                        <span class="announcement-title">${escapeHtml(ann.title)}</span>
+                        <span>${new Date(ann.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div class="announcement-body">${escapeHtml(ann.message)}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ========== استطلاعات الرأي ==========
+        async function loadPolls() {
+            const snapshot = await database.ref('polls').once('value');
+            const polls = snapshot.val() || {};
+            const container = document.getElementById('pollsList');
+            if (Object.keys(polls).length === 0) { container.innerHTML = '<div class="empty-state">🗳️ لا توجد استطلاعات حالياً</div>'; return; }
+            let html = '';
+            for (let id in polls) {
+                const poll = polls[id];
+                const userVoteSnapshot = await database.ref(`poll_votes/${currentUser.uid}/${id}`).once('value');
+                const hasVoted = userVoteSnapshot.exists();
+                html += `<div class="poll-card" data-id="${id}">
+                    <div class="poll-question">${escapeHtml(poll.question)}</div>
+                    <div class="poll-options" id="poll-options-${id}">
+                        ${poll.options.map((opt, idx) => `
+                            <div class="poll-option" onclick="${hasVoted ? '' : `votePoll('${id}', ${idx})`}">
+                                <input type="radio" name="poll-${id}" value="${idx}" ${hasVoted ? 'disabled' : ''}>
+                                <label>${escapeHtml(opt)}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${!hasVoted ? `<button class="poll-vote-btn" onclick="votePoll('${id}')">🗳️ تصويت</button>` : '<div style="color:#10b981; margin-top:0.5rem;">✅ لقد صوت سابقاً</div>'}
+                    <div id="poll-results-${id}" class="poll-results" style="display: none;"></div>
+                    <button class="btn-outline btn-sm" onclick="showPollResults('${id}')" style="margin-top:0.5rem;">📊 عرض النتائج</button>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        window.votePoll = async (pollId, selectedIndex = null) => {
+            if (selectedIndex === null) {
+                const selected = document.querySelector(`input[name="poll-${pollId}"]:checked`);
+                if (!selected) { alert('الرجاء اختيار إجابة'); return; }
+                selectedIndex = parseInt(selected.value);
+            }
+            const pollRef = database.ref(`polls/${pollId}`);
+            const pollSnapshot = await pollRef.once('value');
+            const poll = pollSnapshot.val();
+            if (!poll) return;
+            
+            const votes = poll.votes || [0,0,0,0];
+            if (selectedIndex < votes.length) votes[selectedIndex]++;
+            await pollRef.update({ votes: votes });
+            await database.ref(`poll_votes/${currentUser.uid}/${pollId}`).set({ vote: selectedIndex, votedAt: Date.now() });
+            alert('✅ تم تسجيل تصويتك!');
+            loadPolls();
+        }
+
+        window.showPollResults = async (pollId) => {
+            const pollSnapshot = await database.ref(`polls/${pollId}`).once('value');
+            const poll = pollSnapshot.val();
+            if (!poll) return;
+            const totalVotes = (poll.votes || []).reduce((a,b) => a+b, 0);
+            let html = '<h5>النتائج:</h5>';
+            poll.options.forEach((opt, idx) => {
+                const votes = (poll.votes || [])[idx] || 0;
+                const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+                html += `<div>${escapeHtml(opt)}</div>
+                        <div class="poll-result-bar">
+                            <div class="poll-result-fill" style="width: ${percent}%;">${votes} صوت (${percent}%)</div>
+                        </div>`;
+            });
+            document.getElementById(`poll-results-${pollId}`).innerHTML = html;
+            document.getElementById(`poll-results-${pollId}`).style.display = 'block';
+        }
+
+        // ========== أوقات الصلاة ==========
+        let lastNotifiedPrayer = "";
+        async function fetchPrayerTimes() {
+            try {
+                const d = new Date();
+                const url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
+                const res = await fetch(url), data = await res.json();
+                if (data.code === 200) {
+                    const t = data.data.timings;
+                    const prayers = [{ name: 'الفجر', time: t.Fajr }, { name: 'الظهر', time: t.Dhuhr }, { name: 'العصر', time: t.Asr }, { name: 'المغرب', time: t.Maghrib }, { name: 'العشاء', time: t.Isha }];
+                    let html = '';
+                    prayers.forEach(p => html += `<div class="prayer-item"><span class="prayer-name">${p.name}</span><span class="prayer-time">${p.time}</span></div>`);
+                    document.getElementById('prayerTimes').innerHTML = html;
+                    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+                    let next = null, minDiff = Infinity;
+                    for (let p of prayers) {
+                        let [h, m] = p.time.split(':'); let pm = parseInt(h) * 60 + parseInt(m); let diff = pm - nowMin;
+                        if (diff > 0 && diff < minDiff) { minDiff = diff; next = p; }
+                        if (Math.abs(nowMin - pm) <= 5 && lastNotifiedPrayer !== p.name) {
+                            document.getElementById('prayerAlert').style.display = 'block';
+                            document.getElementById('prayerAlert').innerHTML = `🕌 تنبيه: صلاة ${p.name} بعد ${Math.abs(nowMin - pm)} دقائق`;
+                            setTimeout(() => document.getElementById('prayerAlert').style.display = 'none', 10000);
+                            lastNotifiedPrayer = p.name;
+                        }
+                    }
+                    if (!next) next = prayers[0];
+                    document.getElementById('nextPrayerMsg').innerHTML = `🕋 القادمة: ${next.name} ${next.time} (بعد ${Math.floor(minDiff/60)} س ${minDiff%60} د)`;
+                }
+            } catch(e) { console.log(e); }
+        }
+        setInterval(fetchPrayerTimes, 60000);
+        if (Notification.permission !== 'granted') Notification.requestPermission();
+
+        // ========== مؤقت التركيز ==========
+        let focusInterval = null, focusTimeLeft = 25 * 60, focusRunning = false;
+        const focusDisplay = document.getElementById('focusTimerDisplay'), focusMinutes = document.getElementById('focusMinutes'), focusStatus = document.getElementById('focusStatus');
+        function updateFocusDisplay() { let m = Math.floor(focusTimeLeft/60), s = focusTimeLeft%60; focusDisplay.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+        function startFocus() {
+            if (focusRunning) return;
+            if (focusInterval) clearInterval(focusInterval);
+            focusInterval = setInterval(() => { if (focusTimeLeft > 0) { focusTimeLeft--; updateFocusDisplay(); if (focusTimeLeft === 0) { clearInterval(focusInterval); focusRunning = false; focusStatus.innerText = "✅ وقت التركيز انتهى! خذ راحة"; new Notification("⏰ وقت التركيز انتهى"); } } }, 1000);
+            focusRunning = true; focusStatus.innerText = "🧘 جاري التركيز...";
+        }
+        function pauseFocus() { if (focusInterval) clearInterval(focusInterval); focusRunning = false; focusStatus.innerText = "⏸ متوقف"; }
+        function resetFocus() { pauseFocus(); let nm = parseInt(focusMinutes.value) || 25; focusTimeLeft = nm * 60; updateFocusDisplay(); focusStatus.innerText = "🔄 تم إعادة الضبط"; }
+        function initFocusTimer() {
+            document.getElementById('startFocusBtn')?.addEventListener('click', startFocus);
+            document.getElementById('pauseFocusBtn')?.addEventListener('click', pauseFocus);
+            document.getElementById('resetFocusBtn')?.addEventListener('click', resetFocus);
+            resetFocus();
+        }
+
+        // ========== إحصائيات الطالب ==========
+        async function loadStudentStats() {
+            const submissionsSnap = await database.ref('submissions').orderByChild('studentId').equalTo(currentUser.uid).once('value');
+            const submissions = []; submissionsSnap.forEach(s => submissions.push(s.val()));
+            const total = submissions.length;
+            const correct = submissions.filter(s => s.grade === 'correct').length;
+            const wrong = submissions.filter(s => s.grade === 'wrong').length;
+            const rate = total ? Math.round((correct / total) * 100) : 0;
+            document.getElementById('totalAnswers').innerText = total;
+            document.getElementById('correctAnswers').innerText = correct;
+            document.getElementById('wrongAnswers').innerText = wrong;
+            document.getElementById('correctRate').innerText = `${rate}%`;
+            if (myChart) myChart.destroy();
+            const ctx = document.getElementById('myChart').getContext('2d');
+            myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['✅ صحيح', '❌ خطأ', '⏳ قيد المراجعة'], datasets: [{ data: [correct, wrong, total - correct - wrong], backgroundColor: ['#10b981', '#ef4444', '#f59e0b'] }] } });
+        }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
         
         setInterval(() => {
-            if (currentUser) loadStudentData();
-        }, 3000);
+            if (currentSection === 'study') loadStudentFeedback();
+            if (currentSection === 'announcements') loadAnnouncements();
+            if (currentSection === 'polls') loadPolls();
+        }, 10000);
     </script>
 </body>
 </html>
