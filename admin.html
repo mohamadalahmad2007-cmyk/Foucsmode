@@ -3,861 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Mode - المدير</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Focus Mode - المدير (بسيطة وشغالة)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+        body { background: #0b1120; color: #e2e8f0; padding: 20px; }
+        .container { max-width: 1300px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn { padding: 6px 14px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; background: #1e293b; color: white; margin: 4px; }
+        .btn-primary { background: #3b82f6; }
+        .btn-outline { background: transparent; border: 1px solid #3b82f6; color: #93c5fd; }
+        .btn-danger { background: #dc2626; }
+        .btn-success { background: #10b981; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .card { background: #1e293b; border-radius: 24px; padding: 20px; margin-bottom: 20px; }
+        .timer { font-size: 48px; font-weight: bold; text-align: center; background: #0f172a; border-radius: 40px; padding: 15px; margin: 10px 0; }
+        .prayer-grid { display: flex; gap: 12px; flex-wrap: wrap; margin: 15px 0; }
+        .prayer-item { background: #0f172a; padding: 8px 12px; border-radius: 40px; text-align: center; flex: 1; }
+        .answer-card { background: #0f172a; border-radius: 20px; padding: 12px; margin-bottom: 12px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .badge-correct { background: #10b981; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
+        .badge-wrong { background: #dc2626; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
+        .badge-pending { background: #f59e0b; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
+        .btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        input, textarea, select { background: #0f172a; border: 1px solid #334155; border-radius: 40px; padding: 8px 16px; color: white; width: 100%; margin: 6px 0; }
+        .tab-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
+        .schedule-day { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 12px; }
+        .file-item, .student-item, .leaderboard-item { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        hr { margin: 15px 0; border-color: #334155; }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">
-            <h1><i class="fas fa-crown"></i> لوحة المدير - Focus Mode</h1>
-            <div style="background: #facc1520; padding: 0.5rem 1rem; border-radius: 2rem;">
-                <i class="fas fa-user-shield"></i> مرحباً <strong id="adminName">المدير</strong>
-                <button onclick="logout()" style="background:none; border:none; color:#facc15; cursor:pointer;"><i class="fas fa-sign-out-alt"></i> خروج</button>
+<div class="container">
+    <div class="header">
+        <h1>🧑‍💼 لوحة المدير - Focus Mode</h1>
+        <button class="btn btn-danger" onclick="logoutNow()">🚪 تسجيل خروج</button>
+    </div>
+
+    <!-- أزرار التبويبات -->
+    <div class="tab-buttons">
+        <button class="btn btn-primary" onclick="showTab('answers')">📝 الإجابات</button>
+        <button class="btn btn-outline" onclick="showTab('quiz')">📚 بنك الأسئلة</button>
+        <button class="btn btn-outline" onclick="showTab('schedule')">📅 جدول أسبوعي</button>
+        <button class="btn btn-outline" onclick="showTab('students')">👥 الطلاب</button>
+        <button class="btn btn-outline" onclick="showTab('stats')">📊 إحصائيات</button>
+        <button class="btn btn-outline" onclick="showTab('leaderboard')">🏆 المتصدرين</button>
+    </div>
+
+    <!-- تبويب الإجابات -->
+    <div id="tab-answers" class="grid-2">
+        <div class="card">
+            <h3>⏱️ مؤقت الدراسة</h3>
+            <div class="timer" id="timerDisplay">25:00</div>
+            <div><input type="number" id="minutesInput" value="25" style="width:100px;"> دقيقة</div>
+            <div>
+                <button class="btn btn-primary" id="startBtn">▶️ بدء</button>
+                <button class="btn btn-outline" id="pauseBtn">⏸️ إيقاف</button>
+                <button class="btn btn-outline" id="resetBtn">🔄 إعادة</button>
             </div>
+            <hr>
+            <h3>🕌 أوقات الصلاة (أبوظبي)</h3>
+            <div id="prayerTimes" class="prayer-grid"></div>
+            <div id="nextPrayer" class="card" style="margin-top:10px;"></div>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-
-        <!-- تبويبات -->
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="showTab('answers')">📝 الإجابات</button>
-            <button class="btn btn-outline" onclick="showTab('quiz')">📚 الأسئلة</button>
-            <button class="btn btn-outline" onclick="showTab('schedule')">📅 جدول أسبوعي</button>
-            <button class="btn btn-outline" onclick="showTab('students')">👥 الطلاب</button>
-            <button class="btn btn-outline" onclick="showTab('stats')">📊 الإحصائيات</button>
-            <button class="btn btn-outline" onclick="showTab('files')">📁 الملفات</button>
-            <button class="btn btn-outline" onclick="showTab('leaderboard')">🏆 المتصدرين</button>
-            <button class="btn btn-outline" onclick="showTab('announcements')">📢 إعلانات</button>
-            <button class="btn btn-outline" onclick="showTab('polls')">🗳️ استطلاعات</button>
-        </div>
-
-        <!-- ========== تبويب الإجابات ========== -->
-        <div id="tab-answers" class="dashboard-grid" style="display: grid;">
-            <div class="sidebar-card">
-                <div class="timer-section">
-                    <h3><i class="fas fa-hourglass-half"></i> مؤقت الدراسة</h3>
-                    <div class="timer-display" id="timerDisplay">25:00</div>
-                    <div class="progress-bar"><div class="progress-fill" id="timerProgress"></div></div>
-                    <div class="timer-controls">
-                        <input type="number" id="minutesInput" value="25" min="1" max="120">
-                        <button class="btn btn-primary" id="startTimerBtn"><i class="fas fa-play"></i> بدء</button>
-                        <button class="btn btn-outline" id="pauseTimerBtn"><i class="fas fa-pause"></i></button>
-                        <button class="btn btn-outline" id="resetTimerBtn"><i class="fas fa-undo"></i></button>
-                    </div>
-                    <div class="timer-status" id="timerStatus">⏳ جاهز</div>
-                </div>
-                <div class="prayer-section">
-                    <h3><i class="fas fa-mosque"></i> أوقات الصلاة - أبوظبي</h3>
-                    <div class="prayer-grid" id="prayerTimes"></div>
-                    <div id="nextPrayerMsg" class="next-prayer"></div>
-                </div>
-            </div>
-            <div class="answers-panel">
-                <div class="toolbar">
-                    <input type="text" id="searchInput" placeholder="🔍 بحث..." style="flex:1;">
-                    <select id="filterStudent"><option value="">كل الطلاب</option></select>
-                </div>
-                <div class="answers-list" id="answersList"></div>
-                <div class="broadcast-area">
-                    <textarea id="broadcastMsg" rows="2" placeholder="رسالة جماعية..."></textarea>
-                    <button class="btn btn-primary btn-block" onclick="sendBroadcast()"><i class="fas fa-bullhorn"></i> إرسال للجميع</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========== تبويب الأسئلة (كل سؤال لوحده ثم نشر جماعي) ========== -->
-        <div id="tab-quiz" style="display: none;">
-            <div class="quiz-panel">
-                <h3><i class="fas fa-question-circle"></i> بنك الأسئلة</h3>
-                
-                <!-- إضافة سؤال جديد -->
-                <div style="background: rgba(0,0,0,0.3); border-radius: 1rem; padding: 1rem; margin-bottom: 1rem;">
-                    <h4>➕ إضافة سؤال جديد</h4>
-                    <div class="form-group"><label>السؤال</label><input type="text" id="newQuestion" style="width:100%;"></div>
-                    <div class="form-group"><label>الخيار 1</label><input type="text" id="newOpt0" style="width:100%;"></div>
-                    <div class="form-group"><label>الخيار 2</label><input type="text" id="newOpt1" style="width:100%;"></div>
-                    <div class="form-group"><label>الخيار 3</label><input type="text" id="newOpt2" style="width:100%;"></div>
-                    <div class="form-group"><label>الخيار 4</label><input type="text" id="newOpt3" style="width:100%;"></div>
-                    <div class="form-group"><label>الإجابة الصحيحة (رقم 1-4)</label><input type="number" id="newCorrect" min="1" max="4" style="width:100%;"></div>
-                    <div class="form-group"><label>الوقت (ثانية)</label><input type="number" id="newTime" value="30" style="width:100%;"></div>
-                    <div class="form-group"><label>النقاط</label><input type="number" id="newPoints" value="5" style="width:100%;"></div>
-                    <button class="btn btn-primary" onclick="addSingleQuestion()"><i class="fas fa-save"></i> حفظ السؤال</button>
-                </div>
-
-                <!-- قائمة الأسئلة -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
-                    <h4>📋 قائمة الأسئلة</h4>
-                    <button class="btn btn-success" onclick="publishAllQuestions()" id="publishBtn"><i class="fas fa-paper-plane"></i> نشر جميع الأسئلة للطلاب</button>
-                </div>
-                <div id="quizList" class="answers-list"></div>
-            </div>
-        </div>
-
-        <!-- ========== تبويب الجدول الأسبوعي ========== -->
-        <div id="tab-schedule" style="display: none;">
-            <div class="schedule-card">
-                <h3><i class="fas fa-calendar-week"></i> جدول المذاكرة الأسبوعي</h3>
-                <div class="form-group">
-                    <label>اختر اليوم</label>
-                    <select id="scheduleDay">
-                        <option value="الأحد">الأحد</option>
-                        <option value="الإثنين">الإثنين</option>
-                        <option value="الثلاثاء">الثلاثاء</option>
-                        <option value="الأربعاء">الأربعاء</option>
-                        <option value="الخميس">الخميس</option>
-                        <option value="الجمعة">الجمعة</option>
-                        <option value="السبت">السبت</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>الوقت</label><input type="text" id="taskTime" placeholder="مثال: 10:00 صباحاً"></div>
-                <div class="form-group"><label>المهمة</label><input type="text" id="taskName" placeholder="مثال: مراجعة الرياضيات"></div>
-                <button class="btn btn-primary" onclick="addScheduleTask()"><i class="fas fa-plus"></i> إضافة مهمة</button>
-                <hr style="margin: 1rem 0;">
-                <div id="weeklyScheduleList"></div>
-            </div>
-        </div>
-
-        <!-- ========== باقي التبويبات ========== -->
-        <div id="tab-students" style="display: none;">
-            <div class="card"><h3>👥 الطلاب</h3><button class="btn btn-primary" onclick="showAddStudentModal()">إضافة طالب</button><div id="studentsList" class="answers-list" style="margin-top:1rem;"></div></div>
-        </div>
-
-        <div id="tab-stats" style="display: none;">
-            <div class="card"><h3>📊 إحصائيات عامة</h3><div class="stats-grid"><div class="stat-card"><div class="stat-number" id="totalStudents">0</div><div>الطلاب</div></div><div class="stat-card"><div class="stat-number" id="totalSubmissions">0</div><div>الإجابات</div></div><div class="stat-card"><div class="stat-number" id="correctRate">0%</div><div>نسبة الصحيح</div></div><div class="stat-card"><div class="stat-number" id="totalPoints">0</div><div>النقاط</div></div></div><div class="chart-container"><div id="studentChart"></div></div></div>
-        </div>
-
-        <div id="tab-files" style="display: none;">
-            <div class="files-card"><h3>📁 الملفات</h3><button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">رفع ملف</button><input type="file" id="fileInput" style="display:none;" multiple><div id="sharedFilesList" class="files-grid" style="margin-top:1rem;"></div><div><input type="text" id="linkUrl" placeholder="رابط"><input type="text" id="linkTitle" placeholder="العنوان"><button class="btn btn-primary" onclick="addLink()">إضافة رابط</button></div></div>
-        </div>
-
-        <div id="tab-leaderboard" style="display: none;">
-            <div class="leaderboard-card"><h3>🏆 لوحة المتصدرين</h3><div id="leaderboardList" class="leaderboard-list"></div><div class="stats-card"><h4>🏅 الشارات</h4><div id="badgesSummary"></div></div></div>
-        </div>
-
-        <div id="tab-announcements" style="display: none;">
-            <div class="card"><h3>📢 إدارة الإعلانات</h3><div class="form-group"><label>العنوان</label><input type="text" id="annTitle" style="width:100%;"></div><div class="form-group"><label>المحتوى</label><textarea id="annMessage" rows="3" style="width:100%;"></textarea></div><button class="btn btn-primary" onclick="addAnnouncement()">نشر إعلان</button><div id="announcementsList" style="margin-top:1rem;"></div></div>
-        </div>
-
-        <div id="tab-polls" style="display: none;">
-            <div class="card"><h3>🗳️ استطلاعات الرأي</h3><div class="form-group"><label>السؤال</label><input type="text" id="pollQuestion" style="width:100%;"></div><div class="form-group"><label>الخيارات (افصل بينها بفاصلة)</label><input type="text" id="pollOptions" placeholder="خيار 1, خيار 2, خيار 3" style="width:100%;"></div><button class="btn btn-primary" onclick="addPoll()">إنشاء استطلاع</button><div id="adminPollsList" style="margin-top:1rem;"></div></div>
+        <div class="card">
+            <h3>📬 إجابات الطلاب</h3>
+            <input type="text" id="searchInput" placeholder="🔍 بحث في الإجابات">
+            <div id="answersList"></div>
+            <hr>
+            <textarea id="broadcastMsg" rows="2" placeholder="📢 رسالة جماعية للطلاب"></textarea>
+            <button class="btn btn-primary" onclick="sendBroadcastNow()">📢 إرسال للجميع</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <!-- تبويب الأسئلة -->
+    <div id="tab-quiz" style="display:none;">
+        <div class="card">
+            <h3>📝 إضافة سؤال جديد</h3>
+            <input type="text" id="newQuestion" placeholder="السؤال">
+            <input type="text" id="opt0" placeholder="الخيار 1">
+            <input type="text" id="opt1" placeholder="الخيار 2">
+            <input type="text" id="opt2" placeholder="الخيار 3">
+            <input type="text" id="opt3" placeholder="الخيار 4">
+            <input type="number" id="correctIdx" placeholder="رقم الإجابة الصحيحة (1-4)">
+            <button class="btn btn-primary" onclick="addQuestion()">➕ إضافة السؤال</button>
+            <hr>
+            <button class="btn btn-success" onclick="publishAll()">📢 نشر جميع الأسئلة للطلاب</button>
+            <hr>
+            <h3>📋 قائمة الأسئلة</h3>
+            <div id="questionsList"></div>
+        </div>
+    </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCFydOV8EjlhD4AASTZFU1keYA3I6UQHyw",
-            authDomain: "foucsmode-95e4f.firebaseapp.com",
-            projectId: "foucsmode-95e4f",
-            storageBucket: "foucsmode-95e4f.firebasestorage.app",
-            messagingSenderId: "972730357334",
-            appId: "1:972730357334:web:f2d3044a7c8eed588b8df7",
-            measurementId: "G-519W7HSYD7"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
+    <!-- تبويب الجدول الأسبوعي -->
+    <div id="tab-schedule" style="display:none;">
+        <div class="card">
+            <h3>📅 إضافة مهمة أسبوعية</h3>
+            <select id="weekDay"><option>الأحد</option><option>الإثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option><option>السبت</option></select>
+            <input type="text" id="taskTime" placeholder="الوقت (مثال 10:00 ص)">
+            <input type="text" id="taskName" placeholder="المهمة">
+            <button class="btn btn-primary" onclick="addSchedule()">➕ إضافة</button>
+            <hr>
+            <div id="scheduleList"></div>
+        </div>
+    </div>
 
-        let currentUser = null, currentUserData = null, currentTab = 'answers';
-        let allQuestions = [];
+    <!-- تبويب الطلاب -->
+    <div id="tab-students" style="display:none;">
+        <div class="card"><h3>👥 قائمة الطلاب</h3><div id="studentsList"></div></div>
+    </div>
 
-        // ========== Authentication ==========
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) { window.location.href = 'login.html'; return; }
-            currentUser = user;
-            const snapshot = await database.ref(`users/${user.uid}`).once('value');
-            currentUserData = snapshot.val();
-            if (!currentUserData || currentUserData.role !== 'admin') {
-                window.location.href = 'login.html';
-                return;
+    <!-- تبويب الإحصائيات -->
+    <div id="tab-stats" style="display:none;">
+        <div class="card"><h3>📊 إحصائيات عامة</h3><div id="statsBox"></div></div>
+    </div>
+
+    <!-- تبويب المتصدرين -->
+    <div id="tab-leaderboard" style="display:none;">
+        <div class="card"><h3>🏆 لوحة المتصدرين</h3><div id="leaderboardBox"></div></div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script>
+    // --------------------- Firebase config ---------------------
+    const firebaseConfig = {
+        apiKey: "AIzaSyCFydOV8EjlhD4AASTZFU1keYA3I6UQHyw",
+        authDomain: "foucsmode-95e4f.firebaseapp.com",
+        projectId: "foucsmode-95e4f",
+        storageBucket: "foucsmode-95e4f.firebasestorage.app",
+        messagingSenderId: "972730357334",
+        appId: "1:972730357334:web:f2d3044a7c8eed588b8df7"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    let currentUser = null;
+    // --------------------- Auth ---------------------
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) { window.location.href = "login.html"; return; }
+        currentUser = user;
+        const snap = await db.ref(`users/${user.uid}`).once("value");
+        const role = snap.val()?.role;
+        if (role !== "admin") { window.location.href = "login.html"; return; }
+        loadAll();
+    });
+
+    function loadAll() {
+        loadSubmissions(); loadPrayerTimes(); loadQuestions(); loadSchedule(); loadStudents(); loadStats(); loadLeaderboard();
+        setInterval(() => { if (document.getElementById("tab-answers").style.display !== "none") loadSubmissions(); }, 4000);
+        setInterval(loadPrayerTimes, 60000);
+    }
+
+    function logoutNow() { auth.signOut().then(() => window.location.href = "login.html"); }
+
+    // --------------------- تَبويبات ---------------------
+    function showTab(tab) {
+        document.querySelectorAll("[id^='tab-']").forEach(el => el.style.display = "none");
+        document.getElementById(`tab-${tab}`).style.display = tab==="answers"?"grid":"block";
+        if (tab === "quiz") loadQuestions();
+        if (tab === "schedule") loadSchedule();
+        if (tab === "students") loadStudents();
+        if (tab === "stats") loadStats();
+        if (tab === "leaderboard") loadLeaderboard();
+    }
+
+    // --------------------- مؤقت ---------------------
+    let timeLeft = 25*60, timerInterval = null;
+    const timerEl = document.getElementById("timerDisplay");
+    function updateTimerDisplay() { let m = Math.floor(timeLeft/60), s = timeLeft%60; timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+    function startTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(() => { if (timeLeft>0) { timeLeft--; updateTimerDisplay(); } else { clearInterval(timerInterval); alert("⏰ انتهى الوقت!"); } }, 1000); }
+    function pauseTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
+    function resetTimer() { pauseTimer(); let mins = parseInt(document.getElementById("minutesInput").value)||25; timeLeft = mins*60; updateTimerDisplay(); }
+    document.getElementById("startBtn")?.addEventListener("click", startTimer);
+    document.getElementById("pauseBtn")?.addEventListener("click", pauseTimer);
+    document.getElementById("resetBtn")?.addEventListener("click", resetTimer);
+    resetTimer();
+
+    // --------------------- أوقات الصلاة ---------------------
+    async function loadPrayerTimes() {
+        try {
+            let d = new Date(), url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
+            let res = await fetch(url), data = await res.json();
+            if (data.code === 200) {
+                let timings = data.data.timings;
+                let prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+                let names = ["الفجر","الظهر","العصر","المغرب","العشاء"];
+                let html = "";
+                for (let i=0;i<prayers.length;i++) html += `<div class="prayer-item"><div>${names[i]}</div><div>${timings[prayers[i]]}</div></div>`;
+                document.getElementById("prayerTimes").innerHTML = html;
+                // الوقت المتبقي
+                let now = new Date(), nowMin = now.getHours()*60+now.getMinutes();
+                let nextTime = null, minDiff = Infinity;
+                for (let i=0;i<prayers.length;i++) {
+                    let [h,m] = timings[prayers[i]].split(":");
+                    let pm = parseInt(h)*60+parseInt(m);
+                    let diff = pm - nowMin;
+                    if (diff > 0 && diff < minDiff) { minDiff = diff; nextTime = names[i]; }
+                }
+                if (!nextTime) { let [h,m] = timings["Fajr"].split(":"); minDiff = (24*60-nowMin)+(parseInt(h)*60+parseInt(m)); nextTime = "الفجر"; }
+                document.getElementById("nextPrayer").innerHTML = `🕋 الصلاة القادمة: ${nextTime} بعد ${Math.floor(minDiff/60)} س و ${minDiff%60} د`;
             }
-            document.getElementById('adminName').innerText = currentUserData.displayName;
-            loadAll();
+        } catch(e) { console.warn(e); }
+    }
+
+    // --------------------- الإجابات ---------------------
+    let allSubmissions = [];
+    async function loadSubmissions() {
+        let snap = await db.ref("submissions").once("value");
+        let data = snap.val()||{};
+        allSubmissions = Object.entries(data).map(([id,val])=>({id,...val})).reverse();
+        renderAnswers();
+    }
+    function renderAnswers() {
+        let search = document.getElementById("searchInput")?.value.toLowerCase()||"";
+        let filtered = allSubmissions.filter(s=>s.studentName?.toLowerCase().includes(search)||s.text?.toLowerCase().includes(search));
+        let container = document.getElementById("answersList");
+        if (!filtered.length) { container.innerHTML = "<div class='card'>✨ لا إجابات حالياً</div>"; return; }
+        let html = "";
+        filtered.forEach(sub => {
+            let badge = sub.grade==="correct"?"<span class='badge-correct'>✓ صحيح +5</span>":(sub.grade==="wrong"?"<span class='badge-wrong'>✗ خطأ</span>":"<span class='badge-pending'>⏳ قيد المراجعة</span>");
+            html += `<div class="answer-card">
+                <div class="flex-between"><div><strong>${escapeHtml(sub.studentName)}</strong> <small>${new Date(sub.timestamp).toLocaleString()}</small></div>${badge}</div>
+                <div>${sub.text?escapeHtml(sub.text):""} ${sub.imageUrl?`<a href="${sub.imageUrl}" target="_blank">🖼️ صورة</a>`:""}</div>
+                <div>${sub.feedback?`📩 ${escapeHtml(sub.feedback)}`:""}</div>
+                <div class="btns">
+                    <button class="btn btn-success" onclick="gradeSub('${sub.id}','correct')">✔️ صحيح</button>
+                    <button class="btn btn-danger" onclick="gradeSub('${sub.id}','wrong')">❌ خطأ</button>
+                    <button class="btn" onclick="sendMsgToStudent('${sub.id}')">💬 رسالة</button>
+                    <button class="btn btn-danger" onclick="deleteSub('${sub.id}')">🗑️ حذف</button>
+                </div>
+            </div>`;
         });
-
-        function logout() { auth.signOut().then(() => window.location.href = 'login.html'); }
-        
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            const btn = document.getElementById('themeToggle');
-            btn.innerHTML = document.body.classList.contains('light-theme') ? '☀️' : '🌙';
-            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        container.innerHTML = html;
+    }
+    window.gradeSub = async (id, grade) => {
+        let subRef = db.ref(`submissions/${id}`);
+        let sub = (await subRef.once("value")).val();
+        if (!sub) return;
+        let msg = grade==="correct"?"✅ أحسنت! +5 نقاط":"❌ حاول مرة أخرى";
+        await subRef.update({ grade, feedback: msg });
+        if (grade==="correct") {
+            let pointsRef = db.ref(`users/${sub.studentId}/points`);
+            let cur = (await pointsRef.once("value")).val()||0;
+            await pointsRef.set(cur+5);
         }
-        if(localStorage.getItem('theme') === 'light') toggleTheme();
+        loadSubmissions();
+    };
+    window.sendMsgToStudent = async (id) => {
+        let msg = prompt("📝 أكتب رسالتك للطالب:");
+        if (msg) await db.ref(`submissions/${id}`).update({ feedback: msg });
+        loadSubmissions();
+    };
+    window.deleteSub = async (id) => { if (confirm("حذف الإجابة؟")) { await db.ref(`submissions/${id}`).remove(); loadSubmissions(); } };
+    window.sendBroadcastNow = async () => {
+        let msg = document.getElementById("broadcastMsg").value.trim();
+        if (!msg) return alert("اكتب رسالة");
+        await db.ref("broadcast").push({ message: msg, time: Date.now() });
+        alert("✅ أرسلت للجميع");
+        document.getElementById("broadcastMsg").value = "";
+    };
+    function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" })[m]); }
 
-        function showTab(tab) {
-            const tabs = ['answers', 'quiz', 'schedule', 'students', 'stats', 'files', 'leaderboard', 'announcements', 'polls'];
-            tabs.forEach(t => document.getElementById(`tab-${t}`).style.display = 'none');
-            document.getElementById(`tab-${tab}`).style.display = 'grid';
-            currentTab = tab;
-            if (tab === 'quiz') loadQuestions();
-            if (tab === 'schedule') loadScheduleList();
-            if (tab === 'students') loadStudents();
-            if (tab === 'stats') loadAdminStats();
-            if (tab === 'files') loadFiles();
-            if (tab === 'leaderboard') loadLeaderboard();
-            if (tab === 'announcements') loadAnnouncements();
-            if (tab === 'polls') loadAdminPolls();
-        }
-
-        async function loadAll() {
-            loadSubmissions();
-            fetchPrayerTimes();
-            loadQuestions();
-            loadScheduleList();
-            loadStudents();
-            loadAdminStats();
-            loadFiles();
-            loadLeaderboard();
-            loadAnnouncements();
-            loadAdminPolls();
-        }
-
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
-
-        // ========== Timer ==========
-        let timerInterval = null, timeLeft = 25 * 60, isRunning = false;
-        const timerDisplay = document.getElementById('timerDisplay'), minutesInput = document.getElementById('minutesInput');
-        const timerStatus = document.getElementById('timerStatus'), timerProgress = document.getElementById('timerProgress');
-        let totalInit = 25 * 60;
-
-        function playSound() {
-            try {
-                const ac = new (window.AudioContext || window.webkitAudioContext)();
-                const o = ac.createOscillator(), g = ac.createGain();
-                o.connect(g); g.connect(ac.destination);
-                o.frequency.value = 880; g.gain.value = 0.2;
-                o.start();
-                g.gain.exponentialRampToValueAtTime(0.00001, ac.currentTime + 0.35);
-                o.stop(ac.currentTime + 0.35);
-            } catch(e) {}
-        }
-
-        function updateTimer() {
-            let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            timerDisplay.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            if (totalInit > 0) {
-                let p = ((totalInit - timeLeft) / totalInit) * 100;
-                timerProgress.style.width = `${p}%`;
-            }
-        }
-
-        function startTimer() {
-            if (isRunning) return;
-            if (timerInterval) clearInterval(timerInterval);
-            totalInit = timeLeft;
-            timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateTimer();
-                    if (timeLeft === 0) {
-                        clearInterval(timerInterval);
-                        isRunning = false;
-                        timerStatus.innerText = "✅ انتهى!";
-                        playSound();
-                    }
-                }
-            }, 1000);
-            isRunning = true;
-            timerStatus.innerText = "📚 جاري...";
-        }
-
-        function pauseTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            isRunning = false;
-            timerStatus.innerText = "⏸ متوقف";
-        }
-
-        function resetTimer() {
-            pauseTimer();
-            let nm = parseInt(minutesInput.value) || 25;
-            timeLeft = nm * 60;
-            totalInit = timeLeft;
-            updateTimer();
-            timerStatus.innerText = "🔄 تم";
-        }
-
-        document.getElementById('startTimerBtn')?.addEventListener('click', startTimer);
-        document.getElementById('pauseTimerBtn')?.addEventListener('click', pauseTimer);
-        document.getElementById('resetTimerBtn')?.addEventListener('click', resetTimer);
-        resetTimer();
-
-        // ========== أوقات الصلاة (مع الوقت المتبقي) ==========
-        let lastNotifiedPrayer = "";
-        
-        async function fetchPrayerTimes() {
-            try {
-                const d = new Date();
-                const url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
-                const res = await fetch(url), data = await res.json();
-                if (data.code === 200) {
-                    const t = data.data.timings;
-                    const prayers = [
-                        { name: 'الفجر', time: t.Fajr },
-                        { name: 'الظهر', time: t.Dhuhr },
-                        { name: 'العصر', time: t.Asr },
-                        { name: 'المغرب', time: t.Maghrib },
-                        { name: 'العشاء', time: t.Isha }
-                    ];
-                    
-                    let html = '';
-                    prayers.forEach(p => html += `<div class="prayer-item"><span class="prayer-name">${p.name}</span><span class="prayer-time">${p.time}</span></div>`);
-                    document.getElementById('prayerTimes').innerHTML = html;
-                    
-                    // حساب الوقت المتبقي للصلاة القادمة
-                    const now = new Date();
-                    const nowMin = now.getHours() * 60 + now.getMinutes();
-                    let next = null;
-                    let minDiff = Infinity;
-                    
-                    for (let p of prayers) {
-                        const [h, m] = p.time.split(':');
-                        const prayerMin = parseInt(h) * 60 + parseInt(m);
-                        const diff = prayerMin - nowMin;
-                        if (diff > 0 && diff < minDiff) {
-                            minDiff = diff;
-                            next = p;
-                        }
-                    }
-                    
-                    if (!next) {
-                        // إذا كانت كل الصلوات مضت، نعرض أول صلاة غداً
-                        const [h, m] = prayers[0].time.split(':');
-                        const fajrMin = parseInt(h) * 60 + parseInt(m);
-                        minDiff = (24 * 60 - nowMin) + fajrMin;
-                        next = prayers[0];
-                    }
-                    
-                    const hoursLeft = Math.floor(minDiff / 60);
-                    const minsLeft = minDiff % 60;
-                    document.getElementById('nextPrayerMsg').innerHTML = `🕋 الصلاة القادمة: ${next.name} الساعة ${next.time} (بعد ${hoursLeft} ساعة و ${minsLeft} دقيقة)`;
-                }
-            } catch(e) {
-                console.log("خطأ في جلب أوقات الصلاة:", e);
-                document.getElementById('nextPrayerMsg').innerHTML = "⚠️ خطأ في جلب أوقات الصلاة";
-            }
-        }
-        
-        fetchPrayerTimes();
-        setInterval(fetchPrayerTimes, 60000);
-
-        // ========== إدارة الإجابات ==========
-        let allSubmissions = [];
-        
-        async function loadSubmissions() {
-            const snapshot = await database.ref('submissions').once('value');
-            const data = snapshot.val() || {};
-            allSubmissions = [];
-            for (let id in data) allSubmissions.push({ id: id, ...data[id] });
-            allSubmissions.reverse();
-            renderAnswers();
-        }
-
-        function renderAnswers() {
-            let subs = [...allSubmissions];
-            const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
-            const filter = document.getElementById('filterStudent')?.value || '';
-            if (filter) subs = subs.filter(s => s.studentName === filter);
-            if (search) subs = subs.filter(s => s.text?.toLowerCase().includes(search) || s.studentName.toLowerCase().includes(search));
-            const container = document.getElementById('answersList');
-            if (subs.length === 0) { container.innerHTML = '<div class="empty-state">📭 لا توجد إجابات</div>'; return; }
-            let html = '';
-            subs.forEach((sub) => {
-                const badge = sub.grade === 'correct' ? '<span class="badge-correct">✓ صحيح +5</span>' : (sub.grade === 'wrong' ? '<span class="badge-wrong">✗ خطأ</span>' : '<span class="badge-pending">⏳ قيد المراجعة</span>');
-                html += `<div class="answer-card">
-                    <div class="answer-header">
-                        <div><i class="fas fa-user-circle"></i> <strong>${escapeHtml(sub.studentName)}</strong> <small>${new Date(sub.timestamp).toLocaleString()}</small></div>
-                        ${badge}
-                    </div>
-                    <div class="answer-content">
-                        ${sub.text ? `<div>📝 ${escapeHtml(sub.text)}</div>` : ''}
-                        ${sub.imageUrl ? `<div><a href="${sub.imageUrl}" target="_blank">🖼️ عرض الصورة</a></div>` : ''}
-                    </div>
-                    ${sub.feedback ? `<div><i class="fas fa-comment-dots"></i> ${escapeHtml(sub.feedback)}</div>` : ''}
-                    <div class="action-buttons">
-                        <button class="btn-correct" data-id="${sub.id}">✔️ صحيح (+5)</button>
-                        <button class="btn-wrong" data-id="${sub.id}">❌ خطأ</button>
-                        <button class="btn-feedback" data-id="${sub.id}">📝 رسالة</button>
-                        <button class="btn-danger" data-del="${sub.id}">🗑️ حذف</button>
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
-            
-            document.querySelectorAll('.btn-correct').forEach(b => b.addEventListener('click', () => updateGrade(b.dataset.id, 'correct')));
-            document.querySelectorAll('.btn-wrong').forEach(b => b.addEventListener('click', () => updateGrade(b.dataset.id, 'wrong')));
-            document.querySelectorAll('.btn-feedback').forEach(b => b.addEventListener('click', () => { const msg = prompt("رسالة للطالب:"); if (msg) updateGradeWithMsg(b.dataset.id, msg); }));
-            document.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
-                if (confirm('حذف هذه الإجابة؟')) { await database.ref(`submissions/${b.dataset.del}`).remove(); loadSubmissions(); }
-            }));
-            updateFilter();
-        }
-
-        async function updateGrade(id, grade) {
-            const subSnap = await database.ref(`submissions/${id}`).once('value');
-            const sub = subSnap.val();
-            if (!sub) return;
-            const msg = grade === 'correct' ? '✅ إجابتك صحيحة! أحسنت (+5 نقاط)' : '❌ الإجابة غير صحيحة، حاول مرة أخرى';
-            await database.ref(`submissions/${id}`).update({ grade: grade, feedback: msg });
-            if (grade === 'correct') {
-                const ptSnap = await database.ref(`users/${sub.studentId}/points`).once('value');
-                const cur = ptSnap.val() || 0;
-                await database.ref(`users/${sub.studentId}/points`).set(cur + 5);
-                // التحقق من الشارات
-                const badgesSnap = await database.ref(`users/${sub.studentId}/badges`).once('value');
-                let badges = badgesSnap.val() || [];
-                if (cur + 5 >= 50 && !badges.includes('نجم')) badges.push('نجم');
-                if (cur + 5 >= 100 && !badges.includes('عبقري')) badges.push('عبقري');
-                if (cur + 5 >= 200 && !badges.includes('أسطورة')) badges.push('أسطورة');
-                await database.ref(`users/${sub.studentId}/badges`).set(badges);
-            }
-            playSound();
-            loadSubmissions();
-        }
-
-        async function updateGradeWithMsg(id, msg) {
-            await database.ref(`submissions/${id}`).update({ feedback: msg });
-            playSound();
-            loadSubmissions();
-        }
-
-        function updateFilter() {
-            const students = [...new Set(allSubmissions.map(s => s.studentName))];
-            const sel = document.getElementById('filterStudent');
-            if (sel) sel.innerHTML = '<option value="">كل الطلاب</option>' + students.map(s => `<option value="${s}">${s}</option>`).join('');
-        }
-
-        async function sendBroadcast() {
-            const msg = document.getElementById('broadcastMsg')?.value;
-            if (!msg) { alert('اكتب رسالة أولاً'); return; }
-            await database.ref('broadcast').push({ message: msg, time: Date.now() });
-            alert('✅ تم إرسال الرسالة لجميع الطلاب');
-            document.getElementById('broadcastMsg').value = '';
-        }
-
-        // ========== بنك الأسئلة ==========
-        async function loadQuestions() {
-            const snapshot = await database.ref('quizQuestions').once('value');
-            allQuestions = [];
-            snapshot.forEach(child => allQuestions.push({ id: child.key, ...child.val() }));
-            const container = document.getElementById('quizList');
-            if (allQuestions.length === 0) { container.innerHTML = '<div class="empty-state">📝 لا توجد أسئلة. أضف سؤالاً جديداً!</div>'; return; }
-            let html = '';
-            allQuestions.forEach((q, idx) => {
-                const statusBadge = q.published ? '<span class="badge-correct" style="background:#10b981;">📢 منشور</span>' : '<span class="badge-pending" style="background:#f59e0b;">📝 مسودة</span>';
-                html += `<div class="answer-card">
-                    <div class="answer-header">
-                        <div><strong>سؤال ${idx + 1}:</strong> ${escapeHtml(q.question)}</div>
-                        ${statusBadge}
-                    </div>
-                    <div style="font-size: 0.8rem; margin: 0.5rem 0;">
-                        ${q.options.map((opt, i) => `${i + 1}- ${escapeHtml(opt)} ${i === q.correct ? '✅' : ''}`).join(' | ')}
-                    </div>
-                    <div style="font-size: 0.7rem; opacity: 0.7;">
-                        ⏱️ الوقت: ${q.timeLimit || 30} ثانية | ⭐ النقاط: ${q.points || 5}
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-feedback" onclick="editQuestionById('${q.id}')"><i class="fas fa-edit"></i> تعديل</button>
-                        <button class="btn-danger" onclick="deleteQuestionById('${q.id}')"><i class="fas fa-trash"></i> حذف</button>
-                        ${!q.published ? `<button class="btn-correct" onclick="publishSingleQuestion('${q.id}')"><i class="fas fa-check"></i> نشر</button>` : ''}
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function addSingleQuestion() {
-            const question = document.getElementById('newQuestion').value.trim();
-            const options = [
-                document.getElementById('newOpt0').value.trim(),
-                document.getElementById('newOpt1').value.trim(),
-                document.getElementById('newOpt2').value.trim(),
-                document.getElementById('newOpt3').value.trim()
-            ].filter(opt => opt !== '');
-            const correct = parseInt(document.getElementById('newCorrect').value) - 1;
-            const timeLimit = parseInt(document.getElementById('newTime').value);
-            const points = parseInt(document.getElementById('newPoints').value);
-            
-            if (!question || options.length < 2) { alert('السؤال مطلوب و2 خيارات على الأقل'); return; }
-            
-            database.ref('quizQuestions').push({
-                question: question,
-                options: options,
-                correct: correct,
-                timeLimit: timeLimit || 30,
-                points: points || 5,
-                published: false,
-                createdAt: Date.now()
-            });
-            
-            alert('✅ تم إضافة السؤال بنجاح');
-            // مسح الحقول
-            document.getElementById('newQuestion').value = '';
-            document.getElementById('newOpt0').value = '';
-            document.getElementById('newOpt1').value = '';
-            document.getElementById('newOpt2').value = '';
-            document.getElementById('newOpt3').value = '';
-            document.getElementById('newCorrect').value = '';
-            document.getElementById('newTime').value = '30';
-            document.getElementById('newPoints').value = '5';
-            loadQuestions();
-        }
-
-        async function publishSingleQuestion(id) {
-            await database.ref(`quizQuestions/${id}`).update({ published: true, publishedAt: Date.now() });
-            alert('✅ تم نشر السؤال');
-            loadQuestions();
-        }
-
-        async function publishAllQuestions() {
-            const unpublished = allQuestions.filter(q => !q.published);
-            if (unpublished.length === 0) { alert('جميع الأسئلة منشورة بالفعل'); return; }
-            if (confirm(`⚠️ هل أنت متأكد من نشر ${unpublished.length} سؤال للطلاب؟`)) {
-                for (let q of unpublished) {
-                    await database.ref(`quizQuestions/${q.id}`).update({ published: true, publishedAt: Date.now() });
-                }
-                alert('✅ تم نشر جميع الأسئلة بنجاح');
-                loadQuestions();
-            }
-        }
-
-        function editQuestionById(id) {
-            const q = allQuestions.find(q => q.id === id);
-            if (!q) return;
-            
-            document.getElementById('newQuestion').value = q.question;
-            if (q.options[0]) document.getElementById('newOpt0').value = q.options[0];
-            if (q.options[1]) document.getElementById('newOpt1').value = q.options[1];
-            if (q.options[2]) document.getElementById('newOpt2').value = q.options[2];
-            if (q.options[3]) document.getElementById('newOpt3').value = q.options[3];
-            document.getElementById('newCorrect').value = q.correct + 1;
-            document.getElementById('newTime').value = q.timeLimit || 30;
-            document.getElementById('newPoints').value = q.points || 5;
-            
-            if (confirm('✏️ تعديل هذا السؤال؟ سيتم حذف النسخة القديمة وإضافة نسخة جديدة')) {
-                database.ref(`quizQuestions/${id}`).remove();
-                setTimeout(() => addSingleQuestion(), 500);
-            }
-        }
-
-        async function deleteQuestionById(id) {
-            if (confirm('🗑️ هل أنت متأكد من حذف هذا السؤال نهائياً؟')) {
-                await database.ref(`quizQuestions/${id}`).remove();
-                alert('✅ تم حذف السؤال');
-                loadQuestions();
-            }
-        }
-
-        // ========== الجدول الأسبوعي ==========
-        async function loadScheduleList() {
-            const snapshot = await database.ref('weekly_schedule').once('value');
-            const schedule = snapshot.val() || {};
-            const container = document.getElementById('weeklyScheduleList');
-            const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-            let hasTasks = false;
-            let html = '<h4>📋 المهام المجدولة:</h4>';
-            
-            for (let day of days) {
-                if (schedule[day] && schedule[day].length > 0) {
-                    hasTasks = true;
-                    html += `<div class="schedule-day" style="margin-bottom: 1rem;">
-                        <div class="schedule-day-header" style="background: #3b82f620; padding: 0.5rem; border-radius: 0.8rem;">📅 ${day}</div>`;
-                    schedule[day].forEach((task, idx) => {
-                        html += `<div class="schedule-task-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <span>⏰ ${escapeHtml(task.time)} - ${escapeHtml(task.task)}</span>
-                            <button class="btn-sm btn-danger" onclick="deleteScheduleTask('${day}', ${idx})"><i class="fas fa-trash"></i></button>
-                        </div>`;
-                    });
-                    html += `</div>`;
-                }
-            }
-            
-            if (!hasTasks) html += '<div class="empty-state">📅 لا توجد مهام مجدولة. أضف مهامك الأولى</div>';
-            container.innerHTML = html;
-        }
-
-        window.addScheduleTask = async () => {
-            const day = document.getElementById('scheduleDay').value;
-            const time = document.getElementById('taskTime').value.trim();
-            const task = document.getElementById('taskName').value.trim();
-            if (!time || !task) { alert('⏰ الرجاء إدخال الوقت والمهمة'); return; }
-            
-            const snapshot = await database.ref(`weekly_schedule/${day}`).once('value');
-            let tasks = snapshot.val() || [];
-            tasks.push({ time: time, task: task, reminder: true });
-            await database.ref(`weekly_schedule/${day}`).set(tasks);
-            
-            document.getElementById('taskTime').value = '';
-            document.getElementById('taskName').value = '';
-            alert('✅ تم إضافة المهمة');
-            loadScheduleList();
-        };
-
-        window.deleteScheduleTask = async (day, idx) => {
-            const snapshot = await database.ref(`weekly_schedule/${day}`).once('value');
-            let tasks = snapshot.val() || [];
-            tasks.splice(idx, 1);
-            await database.ref(`weekly_schedule/${day}`).set(tasks);
-            loadScheduleList();
-        };
-
-        // ========== إدارة الطلاب ==========
-        async function loadStudents() {
-            const snapshot = await database.ref('users').once('value');
-            const users = snapshot.val() || {};
-            const students = [];
-            for (let uid in users) if (users[uid].role === 'student') students.push({ uid, ...users[uid] });
-            const container = document.getElementById('studentsList');
-            if (students.length === 0) { container.innerHTML = '<div class="empty-state">👥 لا يوجد طلاب</div>'; return; }
-            let html = '';
-            students.forEach(s => {
-                html += `<div class="answer-card">
-                    <div><strong>${escapeHtml(s.displayName)}</strong><br><small>${s.email}</small><br><small>⭐ ${s.points || 0} نقطة</small></div>
-                    <div><button class="btn-danger btn-sm" onclick="deleteStudent('${s.uid}')"><i class="fas fa-trash"></i> حذف</button></div>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        window.deleteStudent = async (uid) => {
-            if (confirm('حذف هذا الطالب نهائياً؟')) {
-                await database.ref(`users/${uid}`).remove();
-                loadStudents();
-            }
-        };
-
-        function showAddStudentModal() {
-            const email = prompt('📧 البريد الإلكتروني للطالب:');
-            if (!email) return;
-            const pwd = prompt('🔒 كلمة المرور:');
-            if (!pwd) return;
-            const name = prompt('👤 الاسم الكامل:');
-            if (!name) return;
-            
-            auth.createUserWithEmailAndPassword(email, pwd).then(async (uc) => {
-                await database.ref(`users/${uc.user.uid}`).set({
-                    email: email,
-                    role: 'student',
-                    displayName: name,
-                    points: 0,
-                    badges: [],
-                    createdAt: new Date().toISOString()
-                });
-                alert('✅ تم إضافة الطالب بنجاح');
-                loadStudents();
-            }).catch(e => alert('❌ خطأ: ' + e.message));
-        }
-
-        // ========== الإحصائيات ==========
-        async function loadAdminStats() {
-            const usersSnapshot = await database.ref('users').once('value');
-            const users = usersSnapshot.val() || {};
-            const students = Object.values(users).filter(u => u.role === 'student');
-            const subsSnapshot = await database.ref('submissions').once('value');
-            const subs = Object.values(subsSnapshot.val() || {});
-            const correct = subs.filter(s => s.grade === 'correct').length;
-            const rate = subs.length ? Math.round((correct / subs.length) * 100) : 0;
-            const totalPoints = students.reduce((sum, st) => sum + (st.points || 0), 0);
-            
-            document.getElementById('totalStudents').innerText = students.length;
-            document.getElementById('totalSubmissions').innerText = subs.length;
-            document.getElementById('correctRate').innerText = `${rate}%`;
-            document.getElementById('totalPoints').innerText = totalPoints;
-            
-            let chartHtml = '';
-            const studentStats = {};
-            subs.forEach(s => {
-                if (!studentStats[s.studentName]) studentStats[s.studentName] = { correct: 0, total: 0 };
-                studentStats[s.studentName].total++;
-                if (s.grade === 'correct') studentStats[s.studentName].correct++;
-            });
-            for (let name in studentStats) {
-                let percent = Math.round((studentStats[name].correct / studentStats[name].total) * 100);
-                chartHtml += `<div>
-                    <div style="display: flex; justify-content: space-between;"><span>${escapeHtml(name)}</span><span>${percent}%</span></div>
-                    <div class="chart-bar"><div class="chart-fill" style="width: ${percent}%;">${percent}%</div></div>
-                </div>`;
-            }
-            document.getElementById('studentChart').innerHTML = chartHtml || '<div class="empty-state">لا توجد بيانات كافية</div>';
-        }
-
-        // ========== الملفات ==========
-        async function loadFiles() {
-            const snapshot = await database.ref('files').once('value');
-            const files = snapshot.val() || {};
-            const container = document.getElementById('sharedFilesList');
-            if (Object.keys(files).length === 0) { container.innerHTML = '<div class="empty-state">📂 لا توجد ملفات</div>'; return; }
-            let html = '';
-            for (let id in files) {
-                const f = files[id];
-                html += `<div class="file-item">
-                    <div class="file-icon"><i class="fas ${f.isLink ? 'fa-link' : 'fa-file'}"></i></div>
-                    <div class="file-name">${escapeHtml(f.name)}</div>
-                    <div>
-                        <button class="file-download" onclick="window.open('${f.url}', '_blank')"><i class="fas fa-download"></i></button>
-                        <button class="btn-danger btn-sm" onclick="deleteFileAdmin('${id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        window.deleteFileAdmin = async (id) => {
-            if (confirm('حذف هذا الملف؟')) {
-                await database.ref(`files/${id}`).remove();
-                loadFiles();
-            }
-        };
-
-        function addLink() {
-            const url = document.getElementById('linkUrl')?.value;
-            const title = document.getElementById('linkTitle')?.value;
-            if (url && title) {
-                database.ref('files').push({ name: title, url: url, isLink: true });
-                loadFiles();
-                document.getElementById('linkUrl').value = '';
-                document.getElementById('linkTitle').value = '';
-            } else alert('الرجاء إدخال الرابط والعنوان');
-        }
-
-        document.getElementById('fileInput')?.addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            files.forEach(f => {
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    database.ref('files').push({ name: f.name, url: ev.target.result, isLink: false, type: f.type });
-                    loadFiles();
-                };
-                reader.readAsDataURL(f);
-            });
+    // --------------------- الأسئلة ---------------------
+    let questions = [];
+    async function loadQuestions() {
+        let snap = await db.ref("quiz").once("value");
+        questions = Object.entries(snap.val()||{}).map(([id,q])=>({id,...q}));
+        let cont = document.getElementById("questionsList");
+        if (!questions.length) { cont.innerHTML = "<div class='card'>📭 لا توجد أسئلة بعد</div>"; return; }
+        let html = "";
+        questions.forEach((q,i) => {
+            html += `<div class="answer-card"><div><strong>سؤال ${i+1}:</strong> ${escapeHtml(q.question)}</div><div>${(q.options||[]).map((opt,idx)=>`${idx+1}- ${opt} ${idx===q.correct?"✅":""}`).join(" | ")}</div><div>⏱️ ${q.time||30} ث | ⭐ ${q.points||5}</div><div class="btns"><button class="btn btn-primary" onclick="editQuestionPrompt('${q.id}')">✏️ تعديل</button><button class="btn btn-danger" onclick="deleteQuestion('${q.id}')">🗑️ حذف</button></div></div>`;
         });
+        cont.innerHTML = html;
+    }
+    window.addQuestion = () => {
+        let q = document.getElementById("newQuestion").value.trim();
+        let opts = [document.getElementById("opt0").value.trim(), document.getElementById("opt1").value.trim(), document.getElementById("opt2").value.trim(), document.getElementById("opt3").value.trim()].filter(o=>o);
+        let correct = parseInt(document.getElementById("correctIdx").value)-1;
+        if (!q || opts.length<2 || isNaN(correct)) { alert("املأ السؤال و الخيارات و الرقم الصحيح"); return; }
+        db.ref("quiz").push({ question: q, options: opts, correct, published: false, time: 30, points: 5 });
+        alert("✅ تمت الإضافة");
+        document.getElementById("newQuestion").value = ""; ["opt0","opt1","opt2","opt3","correctIdx"].forEach(id=>document.getElementById(id).value="");
+        loadQuestions();
+    };
+    window.publishAll = async () => {
+        let all = questions;
+        if (!all.length) return alert("لا توجد أسئلة");
+        for (let q of all) await db.ref(`quiz/${q.id}`).update({ published: true });
+        alert("✅ تم نشر جميع الأسئلة للطلاب");
+        loadQuestions();
+    };
+    window.deleteQuestion = async (id) => { if (confirm("حذف السؤال؟")) { await db.ref(`quiz/${id}`).remove(); loadQuestions(); } };
+    window.editQuestionPrompt = async (id) => {
+        let q = questions.find(qq=>qq.id===id);
+        if (!q) return;
+        let newQ = prompt("السؤال الجديد:", q.question);
+        if (!newQ) return;
+        let newOpts = prompt("الخيارات مفصولة بفاصلة:", q.options.join(","));
+        if (!newOpts) return;
+        let newCorrect = prompt("رقم الإجابة الصحيحة (1-4):", (q.correct+1));
+        await db.ref(`quiz/${id}`).update({ question: newQ, options: newOpts.split(","), correct: parseInt(newCorrect)-1 });
+        loadQuestions();
+    };
 
-        // ========== لوحة المتصدرين ==========
-        async function loadLeaderboard() {
-            const snapshot = await database.ref('users').once('value');
-            const users = snapshot.val() || {};
-            const students = [];
-            for (let uid in users) if (users[uid].role === 'student') {
-                students.push({ name: users[uid].displayName, points: users[uid].points || 0, badges: users[uid].badges || [] });
+    // --------------------- جدول أسبوعي ---------------------
+    async function loadSchedule() {
+        let snap = await db.ref("weekly_schedule").once("value");
+        let data = snap.val()||{};
+        let days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+        let html = "";
+        for (let day of days) {
+            if (data[day] && data[day].length) {
+                html += `<div class="schedule-day"><div><strong>📅 ${day}</strong></div>`;
+                data[day].forEach((t,idx)=> { html += `<div class="flex-between"><span>⏰ ${escapeHtml(t.time)} - ${escapeHtml(t.task)}</span><button class="btn btn-danger btn-sm" onclick="deleteTask('${day}',${idx})">🗑️</button></div>`; });
+                html += `</div>`;
             }
-            students.sort((a, b) => b.points - a.points);
-            const container = document.getElementById('leaderboardList');
-            if (students.length === 0) { container.innerHTML = '<div class="empty-state">🏆 لا توجد نقاط بعد</div>'; }
-            else {
-                let html = '';
-                students.forEach((s, idx) => {
-                    const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : (idx === 2 ? 'rank-3' : ''));
-                    html += `<div class="leaderboard-item ${rankClass}">
-                        <div><strong>#${idx + 1}</strong> ${escapeHtml(s.name)}</div>
-                        <div><i class="fas fa-star" style="color:#facc15;"></i> ${s.points} نقطة</div>
-                        <div>${s.badges.map(b => `🏅 ${b}`).join(' ') || ''}</div>
-                    </div>`;
-                });
-                container.innerHTML = html;
-            }
-            
-            let allBadges = {};
-            students.forEach(s => s.badges.forEach(b => allBadges[b] = (allBadges[b] || 0) + 1));
-            let bh = '';
-            for (let b in allBadges) bh += `<span style="display: inline-block; background: #3b82f6; padding: 0.2rem 0.8rem; border-radius: 2rem; margin: 0.2rem;">🏅 ${b} (${allBadges[b]})</span>`;
-            document.getElementById('badgesSummary').innerHTML = bh || 'لم يتم الحصول على شارات بعد';
         }
+        if (!html) html = "<div class='card'>📭 لا توجد مهام</div>";
+        document.getElementById("scheduleList").innerHTML = html;
+    }
+    window.addSchedule = async () => {
+        let day = document.getElementById("weekDay").value;
+        let time = document.getElementById("taskTime").value.trim();
+        let task = document.getElementById("taskName").value.trim();
+        if (!time || !task) { alert("أدخل الوقت والمهمة"); return; }
+        let ref = db.ref(`weekly_schedule/${day}`);
+        let arr = (await ref.once("value")).val()||[];
+        arr.push({ time, task });
+        await ref.set(arr);
+        loadSchedule();
+    };
+    window.deleteTask = async (day, idx) => {
+        let ref = db.ref(`weekly_schedule/${day}`);
+        let arr = (await ref.once("value")).val()||[];
+        arr.splice(idx,1);
+        await ref.set(arr);
+        loadSchedule();
+    };
 
-        // ========== إدارة الإعلانات ==========
-        async function loadAnnouncements() {
-            const snapshot = await database.ref('announcements').orderByChild('createdAt').once('value');
-            const announcements = [];
-            snapshot.forEach(child => announcements.push({ id: child.key, ...child.val() }));
-            announcements.reverse();
-            const container = document.getElementById('announcementsList');
-            if (announcements.length === 0) { container.innerHTML = '<div class="empty-state">📢 لا توجد إعلانات</div>'; return; }
-            let html = '';
-            announcements.forEach(ann => {
-                html += `<div class="announcement-item">
-                    <div class="announcement-header">
-                        <span class="announcement-title">${escapeHtml(ann.title)}</span>
-                        <span>${new Date(ann.createdAt).toLocaleString()}</span>
-                    </div>
-                    <div class="announcement-body">${escapeHtml(ann.message)}</div>
-                    <button class="btn-danger btn-sm" onclick="deleteAnnouncementAdmin('${ann.id}')" style="margin-top: 0.5rem;">🗑️ حذف</button>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
+    // --------------------- الطلاب ---------------------
+    async function loadStudents() {
+        let snap = await db.ref("users").once("value");
+        let users = snap.val()||{};
+        let students = Object.entries(users).filter(([_,u])=>u.role==="student").map(([id,u])=>({id,...u}));
+        let html = "";
+        for (let s of students) html += `<div class="student-item"><div><strong>${escapeHtml(s.displayName)}</strong><br>${s.email}<br>⭐ ${s.points||0}</div><button class="btn btn-danger" onclick="deleteStudent('${s.id}')">🗑️ حذف</button></div>`;
+        if (!html) html = "<div class='card'>👥 لا طلاب</div>";
+        document.getElementById("studentsList").innerHTML = html;
+    }
+    window.deleteStudent = async (uid) => { if (confirm("حذف الطالب نهائياً؟")) { await db.ref(`users/${uid}`).remove(); loadStudents(); } };
 
-        window.addAnnouncement = async () => {
-            const title = document.getElementById('annTitle')?.value.trim();
-            const msg = document.getElementById('annMessage')?.value.trim();
-            if (!title || !msg) { alert('الرجاء إدخال العنوان والمحتوى'); return; }
-            await database.ref('announcements').push({ title: title, message: msg, createdAt: Date.now() });
-            alert('✅ تم نشر الإعلان');
-            document.getElementById('annTitle').value = '';
-            document.getElementById('annMessage').value = '';
-            loadAnnouncements();
-        };
+    // --------------------- إحصائيات ---------------------
+    async function loadStats() {
+        let subs = await db.ref("submissions").once("value");
+        let submissions = Object.values(subs.val()||{});
+        let correct = submissions.filter(s=>s.grade==="correct").length;
+        let total = submissions.length;
+        let rate = total?Math.round((correct/total)*100):0;
+        let usersSnap = await db.ref("users").once("value");
+        let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student");
+        let totalPoints = students.reduce((sum,s)=>sum+(s.points||0),0);
+        document.getElementById("statsBox").innerHTML = `
+            <div class="card">👥 عدد الطلاب: ${students.length}</div>
+            <div class="card">📝 إجمالي الإجابات: ${total}</div>
+            <div class="card">✅ نسبة الإجابات الصحيحة: ${rate}%</div>
+            <div class="card">⭐ مجموع النقاط: ${totalPoints}</div>
+        `;
+    }
 
-        window.deleteAnnouncementAdmin = async (id) => {
-            if (confirm('حذف هذا الإعلان؟')) {
-                await database.ref(`announcements/${id}`).remove();
-                loadAnnouncements();
-            }
-        };
-
-        // ========== إدارة استطلاعات الرأي ==========
-        async function loadAdminPolls() {
-            const snapshot = await database.ref('polls').once('value');
-            const polls = snapshot.val() || {};
-            const container = document.getElementById('adminPollsList');
-            if (Object.keys(polls).length === 0) { container.innerHTML = '<div class="empty-state">🗳️ لا توجد استطلاعات</div>'; return; }
-            let html = '';
-            for (let id in polls) {
-                const poll = polls[id];
-                html += `<div class="answer-card">
-                    <div><strong>${escapeHtml(poll.question)}</strong></div>
-                    <div>${poll.options.map(opt => `• ${opt}`).join('<br>')}</div>
-                    <div class="action-buttons">
-                        <button class="btn-danger" onclick="deletePollAdmin('${id}')"><i class="fas fa-trash"></i> حذف</button>
-                    </div>
-                </div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        window.addPoll = async () => {
-            const question = document.getElementById('pollQuestion')?.value.trim();
-            const optionsStr = document.getElementById('pollOptions')?.value.trim();
-            if (!question || !optionsStr) { alert('الرجاء إدخال السؤال والخيارات'); return; }
-            const options = optionsStr.split(',').map(s => s.trim()).filter(s => s);
-            if (options.length < 2) { alert('تحتاج خيارين على الأقل'); return; }
-            await database.ref('polls').push({ question: question, options: options, votes: new Array(options.length).fill(0), createdAt: Date.now() });
-            alert('✅ تم إنشاء الاستطلاع');
-            document.getElementById('pollQuestion').value = '';
-            document.getElementById('pollOptions').value = '';
-            loadAdminPolls();
-        };
-
-        window.deletePollAdmin = async (id) => {
-            if (confirm('حذف هذا الاستطلاع؟')) {
-                await database.ref(`polls/${id}`).remove();
-                loadAdminPolls();
-            }
-        };
-
-        // تحديث تلقائي
-        setInterval(() => {
-            if (currentTab === 'answers') loadSubmissions();
-            if (currentTab === 'students') loadStudents();
-            if (currentTab === 'stats') loadAdminStats();
-            if (currentTab === 'leaderboard') loadLeaderboard();
-        }, 5000);
-
-        document.getElementById('searchInput')?.addEventListener('input', () => renderAnswers());
-        document.getElementById('filterStudent')?.addEventListener('change', () => renderAnswers());
-    </script>
+    // --------------------- لوحة المتصدرين ---------------------
+    async function loadLeaderboard() {
+        let usersSnap = await db.ref("users").once("value");
+        let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student");
+        students.sort((a,b)=>(b.points||0)-(a.points||0));
+        let html = "";
+        students.forEach((s,i)=> {
+            html += `<div class="leaderboard-item"><div><strong>${i+1}.</strong> ${escapeHtml(s.displayName)}</div><div>⭐ ${s.points||0}</div></div>`;
+        });
+        if (!html) html = "<div class='card'>🏆 لا توجد نقاط بعد</div>";
+        document.getElementById("leaderboardBox").innerHTML = html;
+    }
+</script>
 </body>
 </html>
