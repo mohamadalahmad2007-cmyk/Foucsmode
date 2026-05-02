@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Mode - المدير (بسيطة وشغالة)</title>
+    <title>Focus Mode - المدير</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
         body { background: #0b1120; color: #e2e8f0; padding: 20px; }
-        .container { max-width: 1300px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn { padding: 6px 14px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; background: #1e293b; color: white; margin: 4px; }
+        .container { max-width: 1400px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn { padding: 8px 16px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; background: #1e293b; color: white; margin: 4px; }
         .btn-primary { background: #3b82f6; }
         .btn-outline { background: transparent; border: 1px solid #3b82f6; color: #93c5fd; }
         .btn-danger { background: #dc2626; }
@@ -20,7 +20,7 @@
         .prayer-grid { display: flex; gap: 12px; flex-wrap: wrap; margin: 15px 0; }
         .prayer-item { background: #0f172a; padding: 8px 12px; border-radius: 40px; text-align: center; flex: 1; }
         .answer-card { background: #0f172a; border-radius: 20px; padding: 12px; margin-bottom: 12px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .badge-correct { background: #10b981; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
         .badge-wrong { background: #dc2626; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
         .badge-pending { background: #f59e0b; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
@@ -28,8 +28,15 @@
         input, textarea, select { background: #0f172a; border: 1px solid #334155; border-radius: 40px; padding: 8px 16px; color: white; width: 100%; margin: 6px 0; }
         .tab-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
         .schedule-day { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 12px; }
-        .file-item, .student-item, .leaderboard-item { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .file-item, .student-item, .leaderboard-item { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         hr { margin: 15px 0; border-color: #334155; }
+        .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .video-card { background: #0f172a; border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .video-card:hover { transform: translateY(-4px); }
+        .muted-badge { background: #dc2626; padding: 2px 8px; border-radius: 1rem; font-size: 0.7rem; margin-right: 8px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; font-size: 0.8rem; opacity: 0.8; }
+        @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -47,6 +54,9 @@
         <button class="btn btn-outline" onclick="showTab('students')">👥 الطلاب</button>
         <button class="btn btn-outline" onclick="showTab('stats')">📊 إحصائيات</button>
         <button class="btn btn-outline" onclick="showTab('leaderboard')">🏆 المتصدرين</button>
+        <button class="btn btn-outline" onclick="showTab('videos')">🎬 الفيديوهات</button>
+        <button class="btn btn-outline" onclick="showTab('mute')">🔇 كتم الطلاب</button>
+        <button class="btn btn-outline" onclick="showTab('studyFiles')">📄 ملخصات وملفات</button>
     </div>
 
     <!-- تبويب الإجابات -->
@@ -121,13 +131,64 @@
     <div id="tab-leaderboard" style="display:none;">
         <div class="card"><h3>🏆 لوحة المتصدرين</h3><div id="leaderboardBox"></div></div>
     </div>
+
+    <!-- تبويب الفيديوهات -->
+    <div id="tab-videos" style="display:none;">
+        <div class="card">
+            <h3>🎬 مكتبة الفيديوهات التعليمية</h3>
+            <div style="background: #0f172a; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem;">
+                <h4>➕ إضافة فيديو جديد</h4>
+                <div class="form-group"><label>عنوان الفيديو</label><input type="text" id="videoTitle" placeholder="مثال: شرح قاعدة البيانات"></div>
+                <div class="form-group"><label>رابط الفيديو (YouTube Embed)</label><input type="text" id="videoUrl" placeholder="https://www.youtube.com/embed/xxxxx"></div>
+                <div class="form-group"><label>المادة/التصنيف</label>
+                    <select id="videoSubject">
+                        <option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option>
+                        <option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="addVideo()">➕ رفع الفيديو</button>
+            </div>
+            <div id="videosList" class="videos-grid"></div>
+        </div>
+    </div>
+
+    <!-- تبويب كتم الطلاب -->
+    <div id="tab-mute" style="display:none;">
+        <div class="card">
+            <h3>🔇 تحكم الطلاب (كتم/إلغاء كتم)</h3>
+            <div id="studentsMuteList" class="answers-list"></div>
+        </div>
+    </div>
+
+    <!-- تبويب الملفات والملخصات -->
+    <div id="tab-studyFiles" style="display:none;">
+        <div class="card">
+            <h3>📄 رفع ملخصات وملفات تعليمية</h3>
+            <div style="background: #0f172a; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem;">
+                <div class="form-group"><label>عنوان الملف/الملخص</label><input type="text" id="fileName" placeholder="مثال: ملخص درس الرياضيات"></div>
+                <div class="form-group"><label>رابط الملف (Google Drive, PDF, إلخ)</label><input type="text" id="fileUrl" placeholder="https://..."></div>
+                <div class="form-group"><label>المادة/التصنيف</label>
+                    <select id="fileSubject">
+                        <option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option>
+                        <option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>نوع الملف</label>
+                    <select id="fileType">
+                        <option value="pdf">PDF</option><option value="image">صورة</option><option value="doc">مستند</option><option value="other">آخر</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="addStudyFile()">➕ رفع الملف</button>
+            </div>
+            <div id="studyFilesList" class="answers-list"></div>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script>
-    // --------------------- Firebase config ---------------------
     const firebaseConfig = {
         apiKey: "AIzaSyCFydOV8EjlhD4AASTZFU1keYA3I6UQHyw",
         authDomain: "foucsmode-95e4f.firebaseapp.com",
@@ -141,7 +202,7 @@
     const auth = firebase.auth();
 
     let currentUser = null;
-    // --------------------- Auth ---------------------
+
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = "login.html"; return; }
         currentUser = user;
@@ -152,25 +213,29 @@
     });
 
     function loadAll() {
-        loadSubmissions(); loadPrayerTimes(); loadQuestions(); loadSchedule(); loadStudents(); loadStats(); loadLeaderboard();
+        loadSubmissions(); loadPrayerTimes(); loadQuestions(); loadSchedule(); 
+        loadStudents(); loadStats(); loadLeaderboard(); loadVideos(); loadMuteList(); loadStudyFiles();
         setInterval(() => { if (document.getElementById("tab-answers").style.display !== "none") loadSubmissions(); }, 4000);
         setInterval(loadPrayerTimes, 60000);
+        setInterval(() => { if (document.getElementById("tab-mute").style.display !== "none") loadMuteList(); }, 5000);
     }
 
     function logoutNow() { auth.signOut().then(() => window.location.href = "login.html"); }
 
-    // --------------------- تَبويبات ---------------------
     function showTab(tab) {
         document.querySelectorAll("[id^='tab-']").forEach(el => el.style.display = "none");
-        document.getElementById(`tab-${tab}`).style.display = tab==="answers"?"grid":"block";
+        document.getElementById(`tab-${tab}`).style.display = tab==="answers" ? "grid" : "block";
         if (tab === "quiz") loadQuestions();
         if (tab === "schedule") loadSchedule();
         if (tab === "students") loadStudents();
         if (tab === "stats") loadStats();
         if (tab === "leaderboard") loadLeaderboard();
+        if (tab === "videos") loadVideos();
+        if (tab === "mute") loadMuteList();
+        if (tab === "studyFiles") loadStudyFiles();
     }
 
-    // --------------------- مؤقت ---------------------
+    // Timer
     let timeLeft = 25*60, timerInterval = null;
     const timerEl = document.getElementById("timerDisplay");
     function updateTimerDisplay() { let m = Math.floor(timeLeft/60), s = timeLeft%60; timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
@@ -182,7 +247,7 @@
     document.getElementById("resetBtn")?.addEventListener("click", resetTimer);
     resetTimer();
 
-    // --------------------- أوقات الصلاة ---------------------
+    // أوقات الصلاة
     async function loadPrayerTimes() {
         try {
             let d = new Date(), url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
@@ -194,7 +259,6 @@
                 let html = "";
                 for (let i=0;i<prayers.length;i++) html += `<div class="prayer-item"><div>${names[i]}</div><div>${timings[prayers[i]]}</div></div>`;
                 document.getElementById("prayerTimes").innerHTML = html;
-                // الوقت المتبقي
                 let now = new Date(), nowMin = now.getHours()*60+now.getMinutes();
                 let nextTime = null, minDiff = Infinity;
                 for (let i=0;i<prayers.length;i++) {
@@ -209,7 +273,7 @@
         } catch(e) { console.warn(e); }
     }
 
-    // --------------------- الإجابات ---------------------
+    // الإجابات
     let allSubmissions = [];
     async function loadSubmissions() {
         let snap = await db.ref("submissions").once("value");
@@ -267,7 +331,7 @@
     };
     function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" })[m]); }
 
-    // --------------------- الأسئلة ---------------------
+    // الأسئلة
     let questions = [];
     async function loadQuestions() {
         let snap = await db.ref("quiz").once("value");
@@ -291,9 +355,8 @@
         loadQuestions();
     };
     window.publishAll = async () => {
-        let all = questions;
-        if (!all.length) return alert("لا توجد أسئلة");
-        for (let q of all) await db.ref(`quiz/${q.id}`).update({ published: true });
+        if (!questions.length) return alert("لا توجد أسئلة");
+        for (let q of questions) await db.ref(`quiz/${q.id}`).update({ published: true });
         alert("✅ تم نشر جميع الأسئلة للطلاب");
         loadQuestions();
     };
@@ -310,7 +373,7 @@
         loadQuestions();
     };
 
-    // --------------------- جدول أسبوعي ---------------------
+    // جدول أسبوعي
     async function loadSchedule() {
         let snap = await db.ref("weekly_schedule").once("value");
         let data = snap.val()||{};
@@ -345,7 +408,7 @@
         loadSchedule();
     };
 
-    // --------------------- الطلاب ---------------------
+    // الطلاب
     async function loadStudents() {
         let snap = await db.ref("users").once("value");
         let users = snap.val()||{};
@@ -357,7 +420,7 @@
     }
     window.deleteStudent = async (uid) => { if (confirm("حذف الطالب نهائياً؟")) { await db.ref(`users/${uid}`).remove(); loadStudents(); } };
 
-    // --------------------- إحصائيات ---------------------
+    // إحصائيات
     async function loadStats() {
         let subs = await db.ref("submissions").once("value");
         let submissions = Object.values(subs.val()||{});
@@ -375,7 +438,7 @@
         `;
     }
 
-    // --------------------- لوحة المتصدرين ---------------------
+    // لوحة المتصدرين
     async function loadLeaderboard() {
         let usersSnap = await db.ref("users").once("value");
         let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student");
@@ -387,6 +450,177 @@
         if (!html) html = "<div class='card'>🏆 لا توجد نقاط بعد</div>";
         document.getElementById("leaderboardBox").innerHTML = html;
     }
+
+    // ========== الفيديوهات ==========
+    async function loadVideos() {
+        const snapshot = await db.ref('videos').once('value');
+        const videos = snapshot.val() || {};
+        const container = document.getElementById('videosList');
+        if (!container) return;
+        if (Object.keys(videos).length === 0) {
+            container.innerHTML = '<div class="card">🎬 لا توجد فيديوهات. أضف أول فيديو تعليمي!</div>';
+            return;
+        }
+        let html = '';
+        for (let id in videos) {
+            const v = videos[id];
+            html += `<div class="video-card" onclick="playVideo('${v.url}')">
+                <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); height: 150px; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🎬</div>
+                <div style="padding: 0.8rem;">
+                    <div style="font-weight: bold;">${escapeHtml(v.title)}</div>
+                    <div style="font-size: 0.7rem; opacity: 0.7; display: inline-block; background: #3b82f6; padding: 0.2rem 0.5rem; border-radius: 1rem;">📚 ${escapeHtml(v.subject)}</div>
+                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #334155;">
+                        <button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteVideo('${id}')">🗑️ حذف</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    window.addVideo = async () => {
+        const title = document.getElementById('videoTitle')?.value.trim();
+        const url = document.getElementById('videoUrl')?.value.trim();
+        const subject = document.getElementById('videoSubject')?.value;
+        if (!title || !url) { alert('الرجاء إدخال عنوان ورابط الفيديو'); return; }
+        await db.ref('videos').push({
+            title: title,
+            url: url,
+            subject: subject,
+            uploadedBy: currentUser.uid,
+            uploadedAt: Date.now()
+        });
+        alert('✅ تم إضافة الفيديو');
+        document.getElementById('videoTitle').value = '';
+        document.getElementById('videoUrl').value = '';
+        loadVideos();
+    };
+
+    window.deleteVideo = async (id) => {
+        if (confirm('حذف هذا الفيديو؟')) {
+            await db.ref(`videos/${id}`).remove();
+            loadVideos();
+        }
+    };
+
+    window.playVideo = (url) => {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
+        modal.innerHTML = `<div style="background:#1e293b; border-radius:1.5rem; padding:1.5rem; width:90%; max-width:800px;">
+            <iframe src="${url}" frameborder="0" allowfullscreen style="width:100%; height:400px; border-radius:1rem;"></iframe>
+            <button class="btn btn-primary" style="margin-top:1rem;" onclick="this.closest('div').parentElement.remove()">إغلاق</button>
+        </div>`;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    };
+
+    // ========== كتم الطلاب ==========
+    async function loadMuteList() {
+        const usersSnap = await db.ref('users').once('value');
+        const users = usersSnap.val() || {};
+        const students = [];
+        for (let uid in users) if (users[uid].role === 'student') students.push({ uid, ...users[uid] });
+        
+        const mutedSnap = await db.ref('mutedStudents').once('value');
+        const muted = mutedSnap.val() || {};
+        const now = Date.now();
+        
+        const container = document.getElementById('studentsMuteList');
+        if (!container) return;
+        if (students.length === 0) { container.innerHTML = '<div class="card">👥 لا يوجد طلاب</div>'; return; }
+        
+        let html = '';
+        for (let s of students) {
+            const isMuted = muted[s.uid] && muted[s.uid].mutedUntil > now;
+            const timeLeft = isMuted ? Math.ceil((muted[s.uid].mutedUntil - now) / 1000 / 60) : 0;
+            html += `<div class="answer-card">
+                <div class="flex-between">
+                    <div>
+                        <strong>${escapeHtml(s.displayName)}</strong>
+                        ${isMuted ? `<span class="muted-badge">🔇 مكتوم (${timeLeft} دقيقة متبقية)</span>` : ''}
+                    </div>
+                    <div>
+                        ${!isMuted ? `<button class="btn" style="background:#f59e0b;" onclick="muteStudent('${s.uid}', '${escapeHtml(s.displayName)}')"><i class="fas fa-microphone-slash"></i> كتم</button>` : 
+                                    `<button class="btn btn-success" onclick="unmuteStudent('${s.uid}')"><i class="fas fa-microphone"></i> إلغاء الكتم</button>`}
+                    </div>
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    window.muteStudent = async (uid, name) => {
+        const minutes = parseInt(prompt(`كم دقيقة تريد كتم الطالب "${name}"؟`, 5));
+        if (isNaN(minutes) || minutes < 1) return;
+        const mutedUntil = Date.now() + (minutes * 60 * 1000);
+        await db.ref(`mutedStudents/${uid}`).set({
+            mutedUntil: mutedUntil,
+            mutedBy: currentUser.uid,
+            mutedAt: Date.now(),
+            reason: `كتم لمدة ${minutes} دقيقة`
+        });
+        alert(`✅ تم كتم ${name} لمدة ${minutes} دقائق`);
+        loadMuteList();
+    };
+
+    window.unmuteStudent = async (uid) => {
+        if (confirm('إلغاء كتم هذا الطالب؟')) {
+            await db.ref(`mutedStudents/${uid}`).remove();
+            alert('✅ تم إلغاء الكتم');
+            loadMuteList();
+        }
+    };
+
+    // ========== رفع ملفات وملخصات ==========
+    async function loadStudyFiles() {
+        const snapshot = await db.ref('study_files').once('value');
+        const files = snapshot.val() || {};
+        const container = document.getElementById('studyFilesList');
+        if (!container) return;
+        if (Object.keys(files).length === 0) {
+            container.innerHTML = '<div class="card">📄 لا توجد ملفات مرفوعة</div>';
+            return;
+        }
+        let html = '';
+        for (let id in files) {
+            const f = files[id];
+            html += `<div class="file-item">
+                <div><i class="fas ${f.type === 'pdf' ? 'fa-file-pdf' : (f.type === 'image' ? 'fa-file-image' : 'fa-file')}"></i> <strong>${escapeHtml(f.name)}</strong> <span style="font-size:0.7rem;">(${escapeHtml(f.subject)})</span></div>
+                <div>
+                    <button class="btn btn-sm" style="background:#3b82f6;" onclick="window.open('${f.url}', '_blank')">📥 فتح</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteStudyFile('${id}')">🗑️ حذف</button>
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    window.addStudyFile = async () => {
+        const name = document.getElementById('fileName')?.value.trim();
+        const url = document.getElementById('fileUrl')?.value.trim();
+        const subject = document.getElementById('fileSubject')?.value;
+        const type = document.getElementById('fileType')?.value;
+        if (!name || !url) { alert('الرجاء إدخال عنوان ورابط الملف'); return; }
+        await db.ref('study_files').push({
+            name: name,
+            url: url,
+            subject: subject,
+            type: type,
+            uploadedBy: currentUser.uid,
+            uploadedAt: Date.now()
+        });
+        alert('✅ تم إضافة الملف');
+        document.getElementById('fileName').value = '';
+        document.getElementById('fileUrl').value = '';
+        loadStudyFiles();
+    };
+
+    window.deleteStudyFile = async (id) => {
+        if (confirm('حذف هذا الملف؟')) {
+            await db.ref(`study_files/${id}`).remove();
+            loadStudyFiles();
+        }
+    };
 </script>
 </body>
 </html>

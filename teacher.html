@@ -37,7 +37,8 @@
         <div class="card"><h3>⏱️ مؤقت الدراسة</h3><div class="timer" id="timerDisplay">25:00</div><div><input type="number" id="minutesInput" value="25" style="width:100px;"> دقيقة</div><div><button class="btn btn-primary" id="startBtn">▶️ بدء</button><button class="btn btn-outline" id="pauseBtn">⏸️ إيقاف</button><button class="btn btn-outline" id="resetBtn">🔄 إعادة</button></div><hr><h3>🕌 أوقات الصلاة</h3><div id="prayerTimes" class="prayer-grid"></div><div id="nextPrayer"></div></div>
         <div class="card"><h3>📬 إجابات الطلاب</h3><input type="text" id="searchInput" placeholder="بحث..."><div id="answersList"></div><hr><textarea id="broadcastMsg" rows="2" placeholder="رسالة جماعية"></textarea><button class="btn btn-primary" onclick="sendBroadcast()">📢 إرسال</button></div>
     </div>
-
+<button class="btn btn-outline" onclick="showTab('videos')">🎬 الفيديوهات</button>
+<button class="btn btn-outline" onclick="showTab('mute')">🔇 كتم الطلاب</button>
     <div id="tab-schedule" style="display:none;"><div class="card"><h3>📅 جدول أسبوعي</h3><select id="weekDay"><option>الأحد</option><option>الإثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option><option>السبت</option></select><input type="text" id="taskTime" placeholder="الوقت"><input type="text" id="taskName" placeholder="المهمة"><button class="btn btn-primary" onclick="addTask()">➕ إضافة</button><hr><div id="scheduleList"></div></div></div>
     <div id="tab-leaderboard" style="display:none;"><div class="card"><h3>🏆 المتصدرين</h3><div id="leaderboardBox"></div></div></div>
 </div>

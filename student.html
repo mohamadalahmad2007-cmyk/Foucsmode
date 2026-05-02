@@ -7,29 +7,41 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
         body { background: #0b1120; color: #e2e8f0; padding: 20px; }
-        .container { max-width: 1300px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-        .btn { padding: 8px 16px; border-radius: 40px; border: none; cursor: pointer; font-weight: bold; background: #1e293b; color: white; margin: 4px; }
+        .container { max-width: 1400px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn { padding: 8px 16px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; background: #1e293b; color: white; margin: 4px; transition: 0.2s; }
         .btn-primary { background: #3b82f6; }
         .btn-outline { background: transparent; border: 1px solid #3b82f6; color: #93c5fd; }
         .btn-danger { background: #dc2626; }
+        .btn-success { background: #10b981; }
         .card { background: #1e293b; border-radius: 24px; padding: 20px; margin-bottom: 20px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .timer { font-size: 48px; font-weight: bold; text-align: center; background: #0f172a; border-radius: 40px; padding: 15px; }
+        .timer { font-size: 48px; font-weight: bold; text-align: center; background: #0f172a; border-radius: 40px; padding: 15px; margin: 10px 0; }
         .prayer-grid { display: flex; gap: 12px; flex-wrap: wrap; margin: 15px 0; }
         .prayer-item { background: #0f172a; padding: 8px 12px; border-radius: 40px; text-align: center; flex: 1; }
         .feedback-item { background: #0f172a; border-radius: 20px; padding: 12px; margin-bottom: 12px; border-right: 4px solid #3b82f6; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        input, textarea, select { background: #0f172a; border: 1px solid #334155; border-radius: 40px; padding: 10px 16px; color: white; width: 100%; margin: 6px 0; }
+        input, textarea, select { background: #0f172a; border: 1px solid #334155; border-radius: 40px; padding: 8px 16px; color: white; width: 100%; margin: 6px 0; }
         .tab-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
-        .todo-item { background: #0f172a; border-radius: 40px; padding: 10px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .todo-item, .schedule-task-item { background: #0f172a; border-radius: 40px; padding: 10px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .completed { opacity: 0.6; text-decoration: line-through; }
-        .shop-item { background: #0f172a; border-radius: 20px; padding: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .shop-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 15px; margin-top: 15px; }
-        .stat-number { font-size: 32px; font-weight: bold; color: #facc15; }
-        .leaderboard-item { background: #0f172a; border-radius: 20px; padding: 10px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .rank-1 { background: linear-gradient(135deg,#fbbf24,#f59e0b); color:#1e293b; }
-        hr { margin: 15px 0; border-color: #334155; }
+        .shop-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 15px; }
+        .shop-item { background: #0f172a; border-radius: 20px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .shop-item:hover { transform: translateY(-3px); background: #3b82f620; }
+        .shop-item.disabled { opacity: 0.5; cursor: not-allowed; }
+        .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .video-card { background: #0f172a; border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .video-card:hover { transform: translateY(-4px); }
+        .quiz-question { background: #0f172a; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .quiz-option { background: #1e293b; padding: 12px; margin: 8px 0; border-radius: 40px; cursor: pointer; transition: 0.2s; }
+        .quiz-option:hover { background: #3b82f6; }
+        .muted-alert { background: #dc2626; padding: 10px; border-radius: 40px; text-align: center; margin-bottom: 15px; }
+        .file-item { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .schedule-type-btn { background: #334155; padding: 8px 16px; border-radius: 40px; cursor: pointer; margin: 4px; display: inline-block; }
+        .schedule-type-btn.active { background: #3b82f6; }
+        .date-input { width: auto; display: inline-block; margin: 0 5px; }
+        .badge-icon { font-size: 1.5rem; margin-left: 5px; }
+        .current-badge { background: linear-gradient(135deg, #facc15, #f59e0b); color: #1e293b; padding: 5px 15px; border-radius: 40px; display: inline-block; }
         @media (max-width:800px){ .grid-2{ grid-template-columns:1fr; } }
     </style>
 </head>
@@ -42,18 +54,22 @@
 
     <div class="tab-buttons">
         <button class="btn btn-primary" onclick="showSection('study')">📚 الدراسة</button>
+        <button class="btn btn-outline" onclick="showSection('quiz')">📝 اختبارات</button>
+        <button class="btn btn-outline" onclick="showSection('videos')">🎬 فيديوهات</button>
+        <button class="btn btn-outline" onclick="showSection('files')">📁 ملخصات</button>
         <button class="btn btn-outline" onclick="showSection('todo')">✅ مهامي</button>
         <button class="btn btn-outline" onclick="showSection('shop')">🛒 المتجر</button>
-        <button class="btn btn-outline" onclick="showSection('schedule')">📅 جدولي</button>
+        <button class="btn btn-outline" onclick="showSection('mySchedule')">📅 جدولي الخاص</button>
+        <button class="btn btn-outline" onclick="showSection('schedule')">📅 جدول الأستاذ</button>
         <button class="btn btn-outline" onclick="showSection('prayer')">🕌 الصلاة</button>
         <button class="btn btn-outline" onclick="showSection('stats')">📊 إحصائياتي</button>
-        <button class="btn btn-outline" onclick="showSection('leaderboard')">🏆 المتصدرين</button>
     </div>
 
     <!-- الدراسة -->
     <div id="section-study" class="grid-2">
         <div class="card">
             <h3>✏️ رفع إجابتك</h3>
+            <div id="muteAlert" class="muted-alert" style="display:none;"></div>
             <textarea id="answerText" rows="3" placeholder="اكتب حلك هنا..."></textarea>
             <input type="file" id="answerImage" accept="image/*">
             <div id="imagePreview" style="margin:8px 0;"></div>
@@ -68,22 +84,80 @@
         </div>
     </div>
 
-    <!-- المهام -->
+    <!-- اختبارات -->
+    <div id="section-quiz" style="display:none;">
+        <div class="card"><h3>📝 الأسئلة المتاحة</h3><div id="quizQuestionsList"></div></div>
+    </div>
+
+    <!-- فيديوهات -->
+    <div id="section-videos" style="display:none;">
+        <div class="card"><h3>🎬 مكتبة الفيديوهات</h3><div id="studentVideosList" class="videos-grid"></div></div>
+    </div>
+
+    <!-- ملفات -->
+    <div id="section-files" style="display:none;">
+        <div class="card"><h3>📁 الملفات والملخصات</h3><div id="filesList"></div></div>
+    </div>
+
+    <!-- مهام يومية -->
     <div id="section-todo" style="display:none;">
-        <div class="card"><h3>✅ قائمة مهامي</h3><div id="todoList"></div><div class="flex-between"><input type="text" id="newTodo" placeholder="مهمة جديدة..."><button class="btn btn-primary" onclick="addTodo()">➕ أضف</button></div></div>
+        <div class="card"><h3>✅ مهامي اليومية</h3><div id="todoList"></div><div class="flex-between"><input type="text" id="newTodo" placeholder="مهمة جديدة..."><button class="btn btn-primary" onclick="addTodo()">➕ أضف</button></div></div>
     </div>
 
-    <!-- المتجر -->
+    <!-- متجر الباقات -->
     <div id="section-shop" style="display:none;">
-        <div class="card"><h3>🛒 متجر النقاط</h3><div id="shopItems" class="shop-items"></div></div>
+        <div class="card">
+            <h3>🛒 المتجر - اشترِ ألقابك المميزة</h3>
+            <div id="shopItems" class="shop-items"></div>
+        </div>
     </div>
 
-    <!-- جدول -->
+    <!-- جدول الطالب الخاص -->
+    <div id="section-mySchedule" style="display:none;">
+        <div class="card">
+            <h3>📅 خطتي الدراسية</h3>
+            <div style="margin-bottom: 15px;">
+                <span class="schedule-type-btn" onclick="selectScheduleType('weekly')">📖 دراسة أسبوعية</span>
+                <span class="schedule-type-btn" onclick="selectScheduleType('exam')">🎯 تجهيز للامتحان</span>
+            </div>
+            <div id="weeklySchedulePanel" style="display:none;">
+                <h4>📋 جدول الدراسة الأسبوعي</h4>
+                <div class="flex-between" style="margin-bottom: 10px;">
+                    <select id="weeklyDay" style="width: 120px;">
+                        <option>الأحد</option><option>الإثنين</option><option>الثلاثاء</option>
+                        <option>الأربعاء</option><option>الخميس</option><option>الجمعة</option><option>السبت</option>
+                    </select>
+                    <input type="text" id="weeklyTask" placeholder="المهمة" style="flex:1;">
+                    <button class="btn btn-primary" onclick="addWeeklyTask()">➕</button>
+                </div>
+                <div id="weeklyTasksList"></div>
+                <button class="btn btn-success" onclick="saveWeeklySchedule()">💾 حفظ الجدول الأسبوعي</button>
+            </div>
+            <div id="examSchedulePanel" style="display:none;">
+                <h4>🎯 خطة تجهيز الامتحان</h4>
+                <div class="flex-between">
+                    <label>من تاريخ:</label>
+                    <input type="date" id="examStartDate" class="date-input">
+                    <label>إلى تاريخ:</label>
+                    <input type="date" id="examEndDate" class="date-input">
+                </div>
+                <div class="flex-between" style="margin-top: 10px;">
+                    <input type="text" id="examTask" placeholder="المهمة" style="flex:1;">
+                    <input type="date" id="examTaskDate" class="date-input">
+                    <button class="btn btn-primary" onclick="addExamTask()">➕</button>
+                </div>
+                <div id="examTasksList"></div>
+                <button class="btn btn-success" onclick="saveExamSchedule()">💾 حفظ خطة الامتحان</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الأستاذ -->
     <div id="section-schedule" style="display:none;">
-        <div class="card"><h3>📅 جدول المذاكرة</h3><div id="studentSchedule"></div></div>
+        <div class="card"><h3>📅 جدول المذاكرة (من الأستاذ)</h3><div id="studentSchedule"></div></div>
     </div>
 
-    <!-- الصلاة والتركيز -->
+    <!-- الصلاة -->
     <div id="section-prayer" style="display:none;">
         <div class="card"><h3>🕌 أوقات الصلاة</h3><div id="prayerTimes" class="prayer-grid"></div><div id="nextPrayerMsg"></div></div>
         <div class="card"><h3>🧘 مؤقت تركيز</h3><div class="timer" id="focusTimer">25:00</div><div><input type="number" id="focusMinutes" value="25"> دقيقة</div><div><button class="btn btn-primary" id="focusStart">ابدأ</button><button class="btn btn-outline" id="focusPause">إيقاف</button><button class="btn btn-outline" id="focusReset">إعادة</button></div></div>
@@ -92,11 +166,6 @@
     <!-- إحصائيات -->
     <div id="section-stats" style="display:none;">
         <div class="card"><h3>📊 إحصائياتي</h3><div id="statsBox"></div></div>
-    </div>
-
-    <!-- متصدرين -->
-    <div id="section-leaderboard" style="display:none;">
-        <div class="card"><h3>🏆 لوحة المتصدرين</h3><div id="leaderboardBox"></div></div>
     </div>
 </div>
 
@@ -116,7 +185,21 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    let currentUser = null, currentUserId = null, currentStudentData = null;
+    let currentUserId = null, currentStudentData = null;
+    let currentScheduleType = 'weekly';
+    let weeklyTasks = [];
+    let examTasks = [];
+
+    // ========== باقات المتجر الجديدة ==========
+    const shopPackages = [
+        { id: "grad", name: "🎓 المتخرج", price: 50, icon: "🎓", description: "أول خطوة في طريق النجاح" },
+        { id: "star", name: "⭐ النجم", price: 100, icon: "⭐", description: "تألق في دراستك" },
+        { id: "genius", name: "🧠 العبقري", price: 200, icon: "🧠", description: "ذكاء خارق" },
+        { id: "coder", name: "💻 المبرمج", price: 300, icon: "👨‍💻", description: "مبرمج محترف" },
+        { id: "hero", name: "🏆 البطل", price: 500, icon: "🏆", description: "بطل في التحديات" },
+        { id: "smart", name: "📚 الشاطر", price: 750, icon: "🎯", description: "مجد ومثابر" },
+        { id: "legend", name: "🔥 الأسطورة", price: 1000, icon: "🔥", description: "أسطورة في الدراسة" }
+    ];
 
     auth.onAuthStateChanged(async (u) => {
         if (!u) { window.location.href = "login.html"; return; }
@@ -126,57 +209,85 @@
         if (!currentStudentData || currentStudentData.role !== "student") { window.location.href = "login.html"; return; }
         document.getElementById("studentNameSpan").innerHTML = `👋 مرحباً ${currentStudentData.displayName}`;
         loadAll();
+        startBroadcastListener();
+        startMuteCheck();
     });
 
     function logout() { auth.signOut().then(() => window.location.href = "login.html"); }
+    
     function showSection(section) {
         document.querySelectorAll("[id^='section-']").forEach(el => el.style.display = "none");
         document.getElementById(`section-${section}`).style.display = "grid";
         if (section === "todo") loadTodos();
         if (section === "shop") loadShop();
-        if (section === "schedule") loadSchedule();
+        if (section === "schedule") loadTeacherSchedule();
+        if (section === "mySchedule") loadStudentSchedule();
         if (section === "prayer") { loadPrayerTimes(); initFocusTimer(); }
         if (section === "stats") loadStats();
-        if (section === "leaderboard") loadLeaderboard();
+        if (section === "videos") loadStudentVideos();
+        if (section === "files") loadFiles();
+        if (section === "quiz") loadStudentQuestions();
     }
 
     async function loadAll() {
-        loadPointsAndBadges();
-        loadFeedbacks();
-        loadTodos();
-        loadShop();
-        loadSchedule();
-        loadPrayerTimes();
-        loadStats();
-        loadLeaderboard();
+        loadPointsAndBadges(); loadFeedbacks(); loadTodos(); loadShop(); loadTeacherSchedule();
+        loadPrayerTimes(); loadStats(); loadStudentVideos(); loadFiles(); loadStudentQuestions();
+        loadStudentSchedule();
         setInterval(() => { if (document.getElementById("section-study").style.display === "grid") loadFeedbacks(); }, 5000);
     }
 
+    // ========== كتم ==========
+    async function isMuted() {
+        const snap = await db.ref(`mutedStudents/${currentUserId}`).once("value");
+        const data = snap.val();
+        if (data && data.mutedUntil > Date.now()) {
+            const remaining = Math.ceil((data.mutedUntil - Date.now()) / 1000 / 60);
+            document.getElementById("muteAlert").style.display = "block";
+            document.getElementById("muteAlert").innerHTML = `🔇 تم كتمك. متبقي ${remaining} دقيقة.`;
+            return true;
+        } else {
+            document.getElementById("muteAlert").style.display = "none";
+            if (data && data.mutedUntil <= Date.now()) await db.ref(`mutedStudents/${currentUserId}`).remove();
+            return false;
+        }
+    }
+    function startMuteCheck() { setInterval(async () => { await isMuted(); }, 10000); }
+
+    // ========== رسائل جماعية ==========
+    function startBroadcastListener() {
+        db.ref('broadcast').limitToLast(1).on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            const lastSeen = localStorage.getItem('lastBroadcastSeen') || 0;
+            if (data.time > lastSeen) {
+                alert(`📢 رسالة جديدة:\n\n${data.message}`);
+                localStorage.setItem('lastBroadcastSeen', data.time);
+            }
+        });
+    }
+
+    // ========== نقاط وشارات ==========
     async function loadPointsAndBadges() {
         let snap = await db.ref(`users/${currentUserId}/points`).once("value");
         let points = snap.val() || 0;
         document.getElementById("myPoints").innerText = points;
-        let badgesSnap = await db.ref(`users/${currentUserId}/badges`).once("value");
-        let badges = badgesSnap.val() || [];
-        document.getElementById("myBadges").innerHTML = badges.map(b=>`🏅 ${b}`).join(" ") || "لا شارات";
     }
 
+    // ========== ردود ==========
     async function loadFeedbacks() {
         let snap = await db.ref("submissions").orderByChild("studentId").equalTo(currentUserId).once("value");
-        let subs = [];
-        snap.forEach(s => subs.push(s.val()));
-        subs.reverse();
+        let subs = []; snap.forEach(s => subs.push(s.val())); subs.reverse();
         let container = document.getElementById("feedbackList");
         if (!subs.length) { container.innerHTML = "<div class='card'>📭 لم ترسل أي إجابات بعد</div>"; return; }
         let html = "";
         subs.forEach(sub => {
-            let status = sub.grade === "correct" ? "✅ صحيح" : (sub.grade === "wrong" ? "❌ خطأ" : "⏳ قيد المراجعة");
+            let status = sub.grade === "correct" ? "✅ صحيح" : (sub.grade === "wrong" ? "❌ خطأ" : "⏳ قيد");
             let color = sub.grade === "correct" ? "#10b981" : (sub.grade === "wrong" ? "#dc2626" : "#f59e0b");
             html += `<div class="feedback-item" style="border-right-color:${color}"><div class="flex-between"><span>${status}</span><small>${new Date(sub.timestamp).toLocaleString()}</small></div><div>${sub.text ? `📝 ${escapeHtml(sub.text)}` : ""} ${sub.imageUrl ? `<a href="${sub.imageUrl}" target="_blank">🖼️ صورة</a>` : ""}</div>${sub.feedback ? `<div>📩 ${escapeHtml(sub.feedback)}</div>` : ""}</div>`;
         });
         container.innerHTML = html;
     }
 
+    // ========== رفع صورة ==========
     async function uploadImage(file) {
         let fd = new FormData();
         fd.append("file", file);
@@ -188,6 +299,7 @@
     }
 
     document.getElementById("submitAnswerBtn").addEventListener("click", async () => {
+        if (await isMuted()) { alert("🔇 مكتوم!"); return; }
         let text = document.getElementById("answerText").value.trim();
         let file = document.getElementById("answerImage").files[0];
         if (!text && !file) { alert("اكتب إجابة أو ارفع صورة"); return; }
@@ -196,21 +308,94 @@
         let imgUrl = null;
         if (file) { imgUrl = await uploadImage(file); if (!imgUrl) { statusDiv.innerText = "❌ فشل رفع الصورة"; return; } }
         await db.ref("submissions").push({ studentId: currentUserId, studentName: currentStudentData.displayName, text, imageUrl: imgUrl, timestamp: Date.now(), grade: null, feedback: null });
-        document.getElementById("answerText").value = "";
-        document.getElementById("answerImage").value = "";
-        document.getElementById("imagePreview").innerHTML = "";
+        document.getElementById("answerText").value = ""; document.getElementById("answerImage").value = ""; document.getElementById("imagePreview").innerHTML = "";
         statusDiv.innerText = "✅ تم الإرسال! انتظر رد الأستاذ";
         setTimeout(() => statusDiv.innerText = "", 3000);
         loadFeedbacks();
     });
     document.getElementById("answerImage").addEventListener("change", (e) => {
-        let file = e.target.files[0];
-        let preview = document.getElementById("imagePreview");
+        let file = e.target.files[0]; let preview = document.getElementById("imagePreview");
         if (file) { let reader = new FileReader(); reader.onload = ev => preview.innerHTML = `<img src="${ev.target.result}" style="max-width:150px; border-radius:16px;">`; reader.readAsDataURL(file); }
         else preview.innerHTML = "";
     });
 
-    // مهام
+    // ========== أسئلة ==========
+    async function loadStudentQuestions() {
+        const snap = await db.ref("quiz").once("value");
+        const questions = snap.val() || {};
+        const container = document.getElementById("quizQuestionsList");
+        if (Object.keys(questions).length === 0) { container.innerHTML = "<div class='card'>📝 لا توجد أسئلة</div>"; return; }
+        let html = "";
+        for (let id in questions) {
+            const q = questions[id];
+            if (!q.published) continue;
+            html += `<div class="quiz-question" data-id="${id}" data-correct="${q.correct}" data-points="${q.points || 5}">
+                <div class="flex-between"><strong>${escapeHtml(q.question)}</strong> <span>⭐ ${q.points || 5}</span></div>
+                <div class="quiz-options">${q.options.map((opt, idx) => `<div class="quiz-option" data-idx="${idx}" onclick="answerQuestion(this, ${idx})">${escapeHtml(opt)}</div>`).join('')}</div>
+                <div class="quiz-feedback" style="margin-top:10px;"></div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+    window.answerQuestion = async (element, selectedIdx) => {
+        const questionDiv = element.closest('.quiz-question');
+        const correct = parseInt(questionDiv.dataset.correct);
+        const points = parseInt(questionDiv.dataset.points);
+        const feedbackDiv = questionDiv.querySelector('.quiz-feedback');
+        if (selectedIdx === correct) {
+            feedbackDiv.innerHTML = '✅ صحيحة! +' + points;
+            feedbackDiv.style.color = '#10b981';
+            const currentPoints = parseInt(document.getElementById("myPoints").innerText) || 0;
+            await db.ref(`users/${currentUserId}/points`).set(currentPoints + points);
+            loadPointsAndBadges();
+            questionDiv.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
+        } else {
+            const correctText = questionDiv.querySelector(`.quiz-option[data-idx="${correct}"]`).innerText;
+            feedbackDiv.innerHTML = `❌ خطأ! الإجابة: "${correctText}"`;
+            feedbackDiv.style.color = '#dc2626';
+            element.style.background = '#dc2626';
+        }
+    };
+
+    // ========== فيديوهات ==========
+    async function loadStudentVideos() {
+        const snapshot = await db.ref('videos').once('value');
+        const videos = snapshot.val() || {};
+        const container = document.getElementById('studentVideosList');
+        if (Object.keys(videos).length === 0) { container.innerHTML = '<div class="card">🎬 لا توجد فيديوهات</div>'; return; }
+        let html = '';
+        for (let id in videos) {
+            const v = videos[id];
+            html += `<div class="video-card" onclick="playVideo('${v.url}')">
+                <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); height: 150px; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🎬</div>
+                <div style="padding: 0.8rem;"><div style="font-weight: bold;">${escapeHtml(v.title)}</div><div style="font-size: 0.7rem; background: #3b82f6; display: inline-block; padding: 0.2rem 0.5rem; border-radius: 1rem;">📚 ${escapeHtml(v.subject)}</div></div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+    window.playVideo = (url) => {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
+        modal.innerHTML = `<div style="background:#1e293b; border-radius:1.5rem; padding:1.5rem; width:90%; max-width:800px;"><iframe src="${url}" frameborder="0" allowfullscreen style="width:100%; height:400px; border-radius:1rem;"></iframe><button class="btn btn-primary" style="margin-top:1rem;" onclick="this.closest('div').parentElement.remove()">إغلاق</button></div>`;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    };
+
+    // ========== ملفات ==========
+    async function loadFiles() {
+        const snapshot = await db.ref('study_files').once('value');
+        const files = snapshot.val() || {};
+        const container = document.getElementById('filesList');
+        if (Object.keys(files).length === 0) { container.innerHTML = '<div class="card">📁 لا توجد ملفات</div>'; return; }
+        let html = '';
+        for (let id in files) {
+            const f = files[id];
+            html += `<div class="file-item"><div><strong>${escapeHtml(f.name)}</strong> <span>(${escapeHtml(f.subject)})</span></div><div><button class="btn btn-sm" style="background:#3b82f6;" onclick="window.open('${f.url}', '_blank')">📥 فتح</button></div></div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // ========== مهام يومية ==========
     async function loadTodos() {
         let snap = await db.ref(`todos/${currentUserId}`).once("value");
         let todos = snap.val() || [];
@@ -245,40 +430,58 @@
         loadTodos();
     };
 
-    // متجر بسيط
-    const shopList = [
-        { id: "sticker1", name: "🌟 ملصق نجم", price: 10, icon: "⭐" },
-        { id: "sticker2", name: "🎓 ملصق متخرج", price: 25, icon: "🎓" },
-        { id: "title1", name: "🏅 لقب: مجتهد", price: 50, icon: "📚" },
-        { id: "title2", name: "🧠 لقب: عبقري", price: 100, icon: "🧠" }
-    ];
+    // ========== المتجر الجديد (باقات) ==========
     async function loadShop() {
         let pointsSnap = await db.ref(`users/${currentUserId}/points`).once("value");
         let points = pointsSnap.val() || 0;
-        let purchasedSnap = await db.ref(`users/${currentUserId}/purchased`).once("value");
+        let purchasedSnap = await db.ref(`users/${currentUserId}/purchasedPackages`).once("value");
         let purchased = purchasedSnap.val() || [];
-        let html = "";
-        shopList.forEach(item => {
-            let owned = purchased.includes(item.id);
-            html += `<div class="shop-item" onclick="${owned ? "" : `buyItem('${item.id}',${item.price})`}" style="${owned ? "opacity:0.6" : "cursor:pointer"}"><div>${item.icon}</div><div>${item.name}</div><div>💰 ${item.price}</div>${owned ? "<div>✅ مملوك</div>" : ""}</div>`;
-        });
+        
+        let html = `<div style="margin-bottom: 15px; text-align: center; padding: 10px; background: #0f172a; border-radius: 40px;">
+            <span style="color: #facc15;">⭐ نقاطك: ${points}</span>
+        </div>
+        <div class="shop-items">`;
+        
+        for (let pkg of shopPackages) {
+            let owned = purchased.includes(pkg.id);
+            let canBuy = points >= pkg.price;
+            html += `<div class="shop-item ${owned ? 'disabled' : ''}" ${!owned ? `onclick="buyPackage('${pkg.id}', ${pkg.price})"` : ''}>
+                <div style="font-size: 2rem;">${pkg.icon}</div>
+                <div style="font-weight: bold;">${pkg.name}</div>
+                <div style="font-size: 0.7rem; opacity: 0.7;">${pkg.description}</div>
+                <div style="color: #facc15;">💰 ${pkg.price} نقطة</div>
+                ${owned ? '<div style="color: #10b981;">✅ مملوك</div>' : (canBuy ? '<button class="btn btn-primary btn-sm" style="margin-top:5px;">شراء</button>' : '<div style="color: #dc2626;">❌ نقاط غير كافية</div>')}
+            </div>`;
+        }
+        html += `</div>`;
         document.getElementById("shopItems").innerHTML = html;
     }
-    window.buyItem = async (id, price) => {
+
+    window.buyPackage = async (id, price) => {
         let pointsSnap = await db.ref(`users/${currentUserId}/points`).once("value");
         let points = pointsSnap.val() || 0;
         if (points < price) { alert("❌ نقاطك غير كافية"); return; }
-        let purchasedSnap = await db.ref(`users/${currentUserId}/purchased`).once("value");
+        let purchasedSnap = await db.ref(`users/${currentUserId}/purchasedPackages`).once("value");
         let purchased = purchasedSnap.val() || [];
-        if (purchased.includes(id)) { alert("لقد اشتريت هذا بالفعل"); return; }
+        if (purchased.includes(id)) { alert("لقد اشتريت هذه الباقة بالفعل"); return; }
+        
         purchased.push(id);
-        await db.ref(`users/${currentUserId}`).update({ points: points - price, purchased });
-        alert("✅ تم الشراء!");
+        const pkg = shopPackages.find(p => p.id === id);
+        
+        await db.ref(`users/${currentUserId}`).update({ 
+            points: points - price, 
+            purchasedPackages: purchased,
+            currentBadge: id
+        });
+        
+        alert(`✅ تم شراء "${pkg.name}" بنجاح!\n🎉 أصبح لقبك الآن: ${pkg.name}`);
         loadPointsAndBadges();
         loadShop();
+        loadStats();
     };
 
-    async function loadSchedule() {
+    // ========== جدول الأستاذ ==========
+    async function loadTeacherSchedule() {
         let snap = await db.ref("weekly_schedule").once("value");
         let data = snap.val() || {};
         let days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
@@ -294,16 +497,89 @@
         document.getElementById("studentSchedule").innerHTML = html;
     }
 
+    // ========== جدول الطالب الخاص ==========
+    function selectScheduleType(type) {
+        currentScheduleType = type;
+        document.getElementById("weeklySchedulePanel").style.display = type === 'weekly' ? 'block' : 'none';
+        document.getElementById("examSchedulePanel").style.display = type === 'exam' ? 'block' : 'none';
+    }
+
+    window.addWeeklyTask = () => {
+        const day = document.getElementById("weeklyDay").value;
+        const task = document.getElementById("weeklyTask").value.trim();
+        if (!task) return;
+        weeklyTasks.push({ day, task });
+        renderWeeklyTasks();
+        document.getElementById("weeklyTask").value = "";
+    };
+    function renderWeeklyTasks() {
+        const container = document.getElementById("weeklyTasksList");
+        if (!weeklyTasks.length) { container.innerHTML = "<div class='card'>📋 لا توجد مهام أسبوعية</div>"; return; }
+        let html = "";
+        weeklyTasks.forEach((t, idx) => {
+            html += `<div class="schedule-task-item"><span>📅 ${escapeHtml(t.day)}: ${escapeHtml(t.task)}</span><button class="btn btn-danger btn-sm" onclick="removeWeeklyTask(${idx})">🗑️</button></div>`;
+        });
+        container.innerHTML = html;
+    }
+    window.removeWeeklyTask = (idx) => { weeklyTasks.splice(idx, 1); renderWeeklyTasks(); };
+    window.saveWeeklySchedule = async () => {
+        if (!weeklyTasks.length) { alert("لا توجد مهام للحفظ"); return; }
+        await db.ref(`student_custom_schedules/${currentUserId}/weekly`).set({
+            type: 'weekly', title: 'خطة دراستي الأسبوعية', tasks: weeklyTasks, updatedAt: Date.now()
+        });
+        alert("✅ تم حفظ الجدول الأسبوعي");
+    };
+
+    window.addExamTask = () => {
+        const task = document.getElementById("examTask").value.trim();
+        const date = document.getElementById("examTaskDate").value;
+        if (!task || !date) return;
+        examTasks.push({ date, task });
+        renderExamTasks();
+        document.getElementById("examTask").value = "";
+    };
+    function renderExamTasks() {
+        const container = document.getElementById("examTasksList");
+        if (!examTasks.length) { container.innerHTML = "<div class='card'>🎯 لا توجد مهام للامتحان</div>"; return; }
+        let html = "";
+        examTasks.forEach((t, idx) => {
+            html += `<div class="schedule-task-item"><span>📅 ${t.date}: ${escapeHtml(t.task)}</span><button class="btn btn-danger btn-sm" onclick="removeExamTask(${idx})">🗑️</button></div>`;
+        });
+        container.innerHTML = html;
+    }
+    window.removeExamTask = (idx) => { examTasks.splice(idx, 1); renderExamTasks(); };
+    window.saveExamSchedule = async () => {
+        const startDate = document.getElementById("examStartDate").value;
+        const endDate = document.getElementById("examEndDate").value;
+        if (!startDate || !endDate) { alert("حدد تاريخ البدء والانتهاء"); return; }
+        if (!examTasks.length) { alert("لا توجد مهام للحفظ"); return; }
+        await db.ref(`student_custom_schedules/${currentUserId}/exam`).set({
+            type: 'exam', title: 'خطة تجهيز الامتحان', startDate, endDate, tasks: examTasks, updatedAt: Date.now()
+        });
+        alert("✅ تم حفظ خطة الامتحان");
+    };
+
+    async function loadStudentSchedule() {
+        const snap = await db.ref(`student_custom_schedules/${currentUserId}`).once("value");
+        const data = snap.val() || {};
+        if (data.weekly) { weeklyTasks = data.weekly.tasks || []; renderWeeklyTasks(); }
+        if (data.exam) {
+            examTasks = data.exam.tasks || [];
+            document.getElementById("examStartDate").value = data.exam.startDate || "";
+            document.getElementById("examEndDate").value = data.exam.endDate || "";
+            renderExamTasks();
+        }
+        selectScheduleType('weekly');
+    }
+
+    // ========== أوقات الصلاة ==========
     async function loadPrayerTimes() {
         try {
             let d = new Date(), url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
             let res = await fetch(url), data = await res.json();
             if (data.code === 200) {
-                let t = data.data.timings;
-                let prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
-                let names = ["الفجر","الظهر","العصر","المغرب","العشاء"];
-                let html = "";
-                for (let i=0;i<prayers.length;i++) html += `<div class="prayer-item"><div>${names[i]}</div><div>${t[prayers[i]]}</div></div>`;
+                let t = data.data.timings, prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"], names = ["الفجر","الظهر","العصر","المغرب","العشاء"];
+                let html = ""; for (let i=0;i<prayers.length;i++) html += `<div class="prayer-item"><div>${names[i]}</div><div>${t[prayers[i]]}</div></div>`;
                 document.getElementById("prayerTimes").innerHTML = html;
                 let nowMin = new Date().getHours()*60 + new Date().getMinutes();
                 let next = null, minDiff = Infinity;
@@ -313,11 +589,12 @@
                     if (diff > 0 && diff < minDiff) { minDiff = diff; next = names[i]; }
                 }
                 if (!next) { let [h,m] = t["Fajr"].split(":"); minDiff = (24*60-nowMin)+(parseInt(h)*60+parseInt(m)); next = "الفجر"; }
-                document.getElementById("nextPrayerMsg").innerHTML = `🕋 الصلاة القادمة: ${next} بعد ${Math.floor(minDiff/60)} س و ${minDiff%60} د`;
+                document.getElementById("nextPrayerMsg").innerHTML = `🕋 القادمة: ${next} بعد ${Math.floor(minDiff/60)} س و ${minDiff%60} د`;
             }
         } catch(e) { console.warn(e); }
     }
 
+    // ========== مؤقت تركيز ==========
     let focusInterval = null, focusTime = 25*60, focusRunning = false;
     const focusTimerEl = document.getElementById("focusTimer");
     function updateFocusTimer() { let m = Math.floor(focusTime/60), s = focusTime%60; focusTimerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
@@ -331,31 +608,48 @@
         resetFocus();
     }
 
+    // ========== إحصائيات مع عرض اللقب ==========
     async function loadStats() {
         let subsSnap = await db.ref("submissions").orderByChild("studentId").equalTo(currentUserId).once("value");
         let subs = []; subsSnap.forEach(s => subs.push(s.val()));
         let total = subs.length, correct = subs.filter(s=>s.grade==="correct").length, wrong = subs.filter(s=>s.grade==="wrong").length, rate = total ? Math.round((correct/total)*100) : 0;
         let pointsSnap = await db.ref(`users/${currentUserId}/points`).once("value");
         let points = pointsSnap.val() || 0;
-        document.getElementById("statsBox").innerHTML = `<div class="card">📝 إجمالي الإجابات: ${total}</div><div class="card">✅ إجابات صحيحة: ${correct}</div><div class="card">❌ إجابات خاطئة: ${wrong}</div><div class="card">📊 نسبة النجاح: ${rate}%</div><div class="card">⭐ نقاطك: ${points}</div>`;
+        
+        // جلب الباقة الحالية (اللقب)
+        let purchasedSnap = await db.ref(`users/${currentUserId}/purchasedPackages`).once("value");
+        let purchased = purchasedSnap.val() || [];
+        let currentBadgeSnap = await db.ref(`users/${currentUserId}/currentBadge`).once("value");
+        let badgeId = currentBadgeSnap.val();
+        let badgeInfo = shopPackages.find(p => p.id === badgeId);
+        
+        // جلب جميع الباقات المشتراة
+        let badgesHtml = '';
+        for (let p of shopPackages) {
+            if (purchased.includes(p.id)) {
+                badgesHtml += `<span style="display: inline-block; background: #3b82f6; padding: 3px 10px; border-radius: 20px; margin: 3px; font-size: 0.8rem;">${p.icon} ${p.name}</span>`;
+            }
+        }
+        
+        document.getElementById("statsBox").innerHTML = `
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, #facc1510, #f59e0b10);">
+                <div style="font-size: 0.9rem; opacity: 0.8;">🏅 لقبي الحالي</div>
+                <div style="font-size: 1.8rem; color: #facc15;">${badgeInfo ? badgeInfo.icon + ' ' + badgeInfo.name : '⭐ لا يوجد لقب'}</div>
+            </div>
+            <div class="card">📝 إجمالي الإجابات: ${total}</div>
+            <div class="card">✅ إجابات صحيحة: ${correct}</div>
+            <div class="card">❌ إجابات خاطئة: ${wrong}</div>
+            <div class="card">📊 نسبة النجاح: ${rate}%</div>
+            <div class="card">⭐ نقاطك: ${points}</div>
+            <div class="card">
+                <div style="font-weight: bold; margin-bottom: 5px;">🎖️ الألقاب التي حصلت عليها (${purchased.length}) :</div>
+                <div>${badgesHtml || 'لا توجد ألقاب بعد'}</div>
+            </div>
+        `;
     }
 
-    async function loadLeaderboard() {
-        let usersSnap = await db.ref("users").once("value");
-        let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student");
-        students.sort((a,b)=>(b.points||0)-(a.points||0));
-        let html = "";
-        students.forEach((s,i) => {
-            let rank = i===0?"rank-1":(i===1?"rank-2":(i===2?"rank-3":""));
-            html += `<div class="leaderboard-item ${rank}"><div><strong>${i+1}.</strong> ${escapeHtml(s.displayName)}</div><div>⭐ ${s.points||0}</div></div>`;
-        });
-        if (!html) html = "<div class='card'>🏆 لا نقاط بعد</div>";
-        document.getElementById("leaderboardBox").innerHTML = html;
-    }
+    function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" })[m]); }
 
-    function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;" })[m]); }
-
-    // start
     showSection("study");
 </script>
 </body>
