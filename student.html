@@ -30,6 +30,10 @@
         .shop-item:hover { transform: translateY(-3px); background: #3b82f620; }
         .shop-item.disabled { opacity: 0.5; cursor: not-allowed; }
         .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .image-card { background: #0f172a; border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .image-card:hover { transform: translateY(-4px); }
+        .image-card img { width: 100%; height: 160px; object-fit: cover; }
         .video-card { background: #0f172a; border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
         .video-card:hover { transform: translateY(-4px); }
         .quiz-question { background: #0f172a; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
@@ -56,6 +60,7 @@
         <button class="btn btn-primary" onclick="showSection('study')">📚 الدراسة</button>
         <button class="btn btn-outline" onclick="showSection('quiz')">📝 اختبارات</button>
         <button class="btn btn-outline" onclick="showSection('videos')">🎬 فيديوهات</button>
+        <button class="btn btn-outline" onclick="showSection('images')">🖼️ الصور</button>
         <button class="btn btn-outline" onclick="showSection('files')">📁 ملخصات</button>
         <button class="btn btn-outline" onclick="showSection('todo')">✅ مهامي</button>
         <button class="btn btn-outline" onclick="showSection('shop')">🛒 المتجر</button>
@@ -92,6 +97,11 @@
     <!-- فيديوهات -->
     <div id="section-videos" style="display:none;">
         <div class="card"><h3>🎬 مكتبة الفيديوهات</h3><div id="studentVideosList" class="videos-grid"></div></div>
+    </div>
+
+    <!-- الصور -->
+    <div id="section-images" style="display:none;">
+        <div class="card"><h3>🖼️ الصور التعليمية</h3><div id="imagesList" class="images-grid"></div></div>
     </div>
 
     <!-- ملفات -->
@@ -190,7 +200,7 @@
     let weeklyTasks = [];
     let examTasks = [];
 
-    // ========== باقات المتجر الجديدة ==========
+    // ========== باقات المتجر ==========
     const shopPackages = [
         { id: "grad", name: "🎓 المتخرج", price: 50, icon: "🎓", description: "أول خطوة في طريق النجاح" },
         { id: "star", name: "⭐ النجم", price: 100, icon: "⭐", description: "تألق في دراستك" },
@@ -225,13 +235,14 @@
         if (section === "prayer") { loadPrayerTimes(); initFocusTimer(); }
         if (section === "stats") loadStats();
         if (section === "videos") loadStudentVideos();
+        if (section === "images") loadStudentImages();
         if (section === "files") loadFiles();
         if (section === "quiz") loadStudentQuestions();
     }
 
     async function loadAll() {
         loadPointsAndBadges(); loadFeedbacks(); loadTodos(); loadShop(); loadTeacherSchedule();
-        loadPrayerTimes(); loadStats(); loadStudentVideos(); loadFiles(); loadStudentQuestions();
+        loadPrayerTimes(); loadStats(); loadStudentVideos(); loadStudentImages(); loadFiles(); loadStudentQuestions();
         loadStudentSchedule();
         setInterval(() => { if (document.getElementById("section-study").style.display === "grid") loadFeedbacks(); }, 5000);
     }
@@ -291,8 +302,9 @@
     async function uploadImage(file) {
         let fd = new FormData();
         fd.append("file", file);
-        fd.append("upload_preset", "focus_mode_preset");
+        fd.append("upload_preset", 'focus_unsigned');
         fd.append("cloud_name", "dt1lrpvhq");
+        fd.append("resource_type", "auto");
         let res = await fetch("https://api.cloudinary.com/v1_1/dt1lrpvhq/image/upload", { method: "POST", body: fd });
         let data = await res.json();
         return data.secure_url;
@@ -381,6 +393,26 @@
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     };
 
+    // ========== الصور ==========
+    async function loadStudentImages() {
+        const snapshot = await db.ref('images').once('value');
+        const images = snapshot.val() || {};
+        const container = document.getElementById('imagesList');
+        if (Object.keys(images).length === 0) { container.innerHTML = '<div class="card">🖼️ لا توجد صور تعليمية حالياً</div>'; return; }
+        let html = '';
+        for (let id in images) {
+            const img = images[id];
+            html += `<div class="image-card" onclick="window.open('${img.url}', '_blank')">
+                <img src="${img.url}" alt="${escapeHtml(img.name)}" style="width:100%; height:160px; object-fit:cover;">
+                <div style="padding: 0.8rem;">
+                    <div style="font-weight: bold;">📷 ${escapeHtml(img.name)}</div>
+                    <div style="font-size: 0.7rem; background: #3b82f6; display: inline-block; padding: 0.2rem 0.5rem; border-radius: 1rem;">📚 ${escapeHtml(img.subject)}</div>
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
     // ========== ملفات ==========
     async function loadFiles() {
         const snapshot = await db.ref('study_files').once('value');
@@ -430,7 +462,7 @@
         loadTodos();
     };
 
-    // ========== المتجر الجديد (باقات) ==========
+    // ========== المتجر (باقات) ==========
     async function loadShop() {
         let pointsSnap = await db.ref(`users/${currentUserId}/points`).once("value");
         let points = pointsSnap.val() || 0;
@@ -608,7 +640,7 @@
         resetFocus();
     }
 
-    // ========== إحصائيات مع عرض اللقب ==========
+    // ========== إحصائيات ==========
     async function loadStats() {
         let subsSnap = await db.ref("submissions").orderByChild("studentId").equalTo(currentUserId).once("value");
         let subs = []; subsSnap.forEach(s => subs.push(s.val()));
@@ -616,14 +648,12 @@
         let pointsSnap = await db.ref(`users/${currentUserId}/points`).once("value");
         let points = pointsSnap.val() || 0;
         
-        // جلب الباقة الحالية (اللقب)
         let purchasedSnap = await db.ref(`users/${currentUserId}/purchasedPackages`).once("value");
         let purchased = purchasedSnap.val() || [];
         let currentBadgeSnap = await db.ref(`users/${currentUserId}/currentBadge`).once("value");
         let badgeId = currentBadgeSnap.val();
         let badgeInfo = shopPackages.find(p => p.id === badgeId);
         
-        // جلب جميع الباقات المشتراة
         let badgesHtml = '';
         for (let p of shopPackages) {
             if (purchased.includes(p.id)) {
