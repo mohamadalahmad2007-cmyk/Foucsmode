@@ -549,7 +549,7 @@
         if (confirm('إلغاء كتم هذا الطالب؟')) { await db.ref(`mutedStudents/${uid}`).remove(); alert('✅ تم إلغاء الكتم'); loadMuteList(); }
     };
 
-    // ========== رفع الملفات الحقيقية (من الجهاز) ==========
+    // ========== رفع الملفات الحقيقية (من الجهاز) مع إضافة access_mode ==========
     document.getElementById('realFileInput')?.addEventListener('change', (event) => {
         selectedFile = event.target.files[0];
         const previewDiv = document.getElementById('filePreview');
@@ -568,31 +568,58 @@
         const subject = document.getElementById('fileSubject').value;
         if (!name) { alert("أدخل عنوان الملف"); return; }
         if (!selectedFile) { alert("اختر ملفاً أولاً"); return; }
+        
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('upload_preset', 'focus_mode_preset');
         formData.append('cloud_name', 'dt1lrpvhq');
+        formData.append('access_mode', 'public');      // ✅ السطر الجديد
+        formData.append('resource_type', 'auto');      // ✅ السطر الجديد
+        
         const progressBar = document.getElementById('uploadProgressBar');
         const statusDiv = document.getElementById('uploadStatus');
         statusDiv.innerText = '⏳ جاري الرفع...';
         progressBar.style.width = '30%';
+        
         try {
-            const response = await fetch('https://api.cloudinary.com/v1_1/dt1lrpvhq/upload', { method: 'POST', body: formData });
+            const response = await fetch('https://api.cloudinary.com/v1_1/dt1lrpvhq/upload', { 
+                method: 'POST', 
+                body: formData 
+            });
             progressBar.style.width = '70%';
             if (!response.ok) throw new Error('فشل الرفع');
             const data = await response.json();
             progressBar.style.width = '90%';
             statusDiv.innerText = '💾 جاري الحفظ...';
-            await db.ref('study_files').push({ name, url: data.secure_url, subject, type: selectedFile.type, size: selectedFile.size, uploadedBy: currentUser.uid, uploadedAt: Date.now() });
+            
+            await db.ref('study_files').push({ 
+                name, 
+                url: data.secure_url, 
+                subject, 
+                type: selectedFile.type, 
+                size: selectedFile.size, 
+                uploadedBy: currentUser.uid, 
+                uploadedAt: Date.now() 
+            });
+            
             progressBar.style.width = '100%';
             statusDiv.innerHTML = '✅ تم الرفع بنجاح!';
+            
             document.getElementById('fileName').value = '';
             document.getElementById('realFileInput').value = '';
             document.getElementById('filePreview').innerHTML = '';
             selectedFile = null;
             loadStudyFiles();
-            setTimeout(() => { progressBar.style.width = '0%'; statusDiv.innerText = ''; }, 3000);
-        } catch (error) { statusDiv.innerHTML = '❌ فشل الرفع'; progressBar.style.width = '0%'; }
+            
+            setTimeout(() => { 
+                progressBar.style.width = '0%'; 
+                statusDiv.innerText = ''; 
+            }, 3000);
+            
+        } catch (error) { 
+            statusDiv.innerHTML = '❌ فشل الرفع: ' + error.message; 
+            progressBar.style.width = '0%'; 
+        }
     };
 
     document.getElementById('uploadRealFileBtn')?.addEventListener('click', () => window.uploadRealFile());
