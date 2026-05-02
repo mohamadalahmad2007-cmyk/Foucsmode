@@ -24,9 +24,9 @@
         .answer-card { background: #0f172a; border-radius: 20px; padding: 12px; margin-bottom: 12px; transition: transform 0.2s; }
         .answer-card:hover { transform: translateX(-3px); }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .badge-correct { background: #10b981; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
-        .badge-wrong { background: #dc2626; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
-        .badge-pending { background: #f59e0b; padding: 2px 12px; border-radius: 30px; font-size: 12px; }
+        .badge-correct { background: #10b981; padding: 2px 12px; border-radius: 30px; }
+        .badge-wrong { background: #dc2626; padding: 2px 12px; border-radius: 30px; }
+        .badge-pending { background: #f59e0b; padding: 2px 12px; border-radius: 30px; }
         .btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
         input, textarea, select { background: #0f172a; border: 1px solid #334155; border-radius: 40px; padding: 8px 16px; color: white; width: 100%; margin: 6px 0; }
         .tab-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
@@ -56,7 +56,6 @@
         <button class="btn btn-danger" onclick="logoutNow()">🚪 تسجيل خروج</button>
     </div>
 
-    <!-- أزرار التبويبات -->
     <div class="tab-buttons">
         <button class="btn btn-primary" onclick="showTab('answers')">📝 الإجابات</button>
         <button class="btn btn-outline" onclick="showTab('quiz')">📚 بنك الأسئلة</button>
@@ -69,129 +68,48 @@
         <button class="btn btn-outline" onclick="showTab('studyFiles')">📄 ملخصات وملفات</button>
     </div>
 
-    <!-- تبويب الإجابات -->
     <div id="tab-answers" class="grid-2">
         <div class="card">
             <h3>⏱️ مؤقت الدراسة</h3>
             <div class="timer" id="timerDisplay">25:00</div>
             <div><input type="number" id="minutesInput" value="25" style="width:100px;"> دقيقة</div>
-            <div>
-                <button class="btn btn-primary" id="startBtn">▶️ بدء</button>
-                <button class="btn btn-outline" id="pauseBtn">⏸️ إيقاف</button>
-                <button class="btn btn-outline" id="resetBtn">🔄 إعادة</button>
-            </div>
-            <hr>
-            <h3>🕌 أوقات الصلاة (أبوظبي)</h3>
+            <div><button class="btn btn-primary" id="startBtn">▶️ بدء</button><button class="btn btn-outline" id="pauseBtn">⏸️ إيقاف</button><button class="btn btn-outline" id="resetBtn">🔄 إعادة</button></div>
+            <hr><h3>🕌 أوقات الصلاة (أبوظبي)</h3>
             <div id="prayerTimes" class="prayer-grid"></div>
             <div id="nextPrayer" class="card" style="margin-top:10px;"></div>
         </div>
         <div class="card">
             <h3>📬 إجابات الطلاب</h3>
-            <input type="text" id="searchInput" placeholder="🔍 بحث في الإجابات">
-            <div id="answersList"></div>
-            <hr>
-            <textarea id="broadcastMsg" rows="2" placeholder="📢 رسالة جماعية للطلاب"></textarea>
+            <input type="text" id="searchInput" placeholder="🔍 بحث"><div id="answersList"></div>
+            <hr><textarea id="broadcastMsg" rows="2" placeholder="📢 رسالة جماعية"></textarea>
             <button class="btn btn-primary" onclick="sendBroadcastNow()">📢 إرسال للجميع</button>
         </div>
     </div>
 
-    <!-- تبويب الأسئلة -->
-    <div id="tab-quiz" style="display:none;">
-        <div class="card">
-            <h3>📝 إضافة سؤال جديد</h3>
-            <input type="text" id="newQuestion" placeholder="السؤال">
-            <input type="text" id="opt0" placeholder="الخيار 1">
-            <input type="text" id="opt1" placeholder="الخيار 2">
-            <input type="text" id="opt2" placeholder="الخيار 3">
-            <input type="text" id="opt3" placeholder="الخيار 4">
-            <input type="number" id="correctIdx" placeholder="رقم الإجابة الصحيحة (1-4)">
-            <button class="btn btn-primary" onclick="addQuestion()">➕ إضافة السؤال</button>
-            <hr>
-            <button class="btn btn-success" onclick="publishAll()">📢 نشر جميع الأسئلة للطلاب</button>
-            <hr>
-            <h3>📋 قائمة الأسئلة</h3>
-            <div id="questionsList"></div>
-        </div>
-    </div>
+    <div id="tab-quiz" style="display:none;"><div class="card"><h3>📝 إضافة سؤال جديد</h3><input type="text" id="newQuestion" placeholder="السؤال"><input type="text" id="opt0" placeholder="الخيار 1"><input type="text" id="opt1" placeholder="الخيار 2"><input type="text" id="opt2" placeholder="الخيار 3"><input type="text" id="opt3" placeholder="الخيار 4"><input type="number" id="correctIdx" placeholder="رقم الإجابة الصحيحة (1-4)"><button class="btn btn-primary" onclick="addQuestion()">➕ إضافة</button><hr><button class="btn btn-success" onclick="publishAll()">📢 نشر جميع الأسئلة</button><hr><h3>📋 قائمة الأسئلة</h3><div id="questionsList"></div></div></div>
 
-    <!-- تبويب الجدول الأسبوعي -->
-    <div id="tab-schedule" style="display:none;">
-        <div class="card">
-            <h3>📅 إضافة مهمة أسبوعية</h3>
-            <select id="weekDay"><option>الأحد</option><option>الإثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option><option>السبت</option></select>
-            <input type="text" id="taskTime" placeholder="الوقت (مثال 10:00 ص)">
-            <input type="text" id="taskName" placeholder="المهمة">
-            <button class="btn btn-primary" onclick="addSchedule()">➕ إضافة</button>
-            <hr>
-            <div id="scheduleList"></div>
-        </div>
-    </div>
+    <div id="tab-schedule" style="display:none;"><div class="card"><h3>📅 إضافة مهمة</h3><select id="weekDay"><option>الأحد</option><option>الإثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option><option>السبت</option></select><input type="text" id="taskTime" placeholder="الوقت"><input type="text" id="taskName" placeholder="المهمة"><button class="btn btn-primary" onclick="addSchedule()">➕ إضافة</button><hr><div id="scheduleList"></div></div></div>
 
-    <!-- تبويب الطلاب -->
-    <div id="tab-students" style="display:none;">
-        <div class="card"><h3>👥 قائمة الطلاب</h3><div id="studentsList"></div></div>
-    </div>
+    <div id="tab-students" style="display:none;"><div class="card"><h3>👥 قائمة الطلاب</h3><div id="studentsList"></div></div></div>
 
-    <!-- تبويب الإحصائيات -->
-    <div id="tab-stats" style="display:none;">
-        <div class="card"><h3>📊 إحصائيات عامة</h3><div id="statsBox"></div></div>
-    </div>
+    <div id="tab-stats" style="display:none;"><div class="card"><h3>📊 إحصائيات عامة</h3><div id="statsBox"></div></div></div>
 
-    <!-- تبويب المتصدرين -->
-    <div id="tab-leaderboard" style="display:none;">
-        <div class="card"><h3>🏆 لوحة المتصدرين</h3><div id="leaderboardBox"></div></div>
-    </div>
+    <div id="tab-leaderboard" style="display:none;"><div class="card"><h3>🏆 لوحة المتصدرين</h3><div id="leaderboardBox"></div></div></div>
 
-    <!-- تبويب الفيديوهات -->
-    <div id="tab-videos" style="display:none;">
-        <div class="card">
-            <h3>🎬 مكتبة الفيديوهات التعليمية</h3>
-            <div style="background: #0f172a; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem;">
-                <h4>➕ إضافة فيديو جديد</h4>
-                <div class="form-group"><label>عنوان الفيديو</label><input type="text" id="videoTitle" placeholder="مثال: شرح قاعدة البيانات"></div>
-                <div class="form-group"><label>رابط الفيديو (YouTube Embed)</label><input type="text" id="videoUrl" placeholder="https://www.youtube.com/embed/xxxxx"></div>
-                <div class="form-group"><label>المادة/التصنيف</label>
-                    <select id="videoSubject">
-                        <option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option>
-                        <option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="addVideo()">➕ رفع الفيديو</button>
-            </div>
-            <div id="videosList" class="videos-grid"></div>
-        </div>
-    </div>
+    <div id="tab-videos" style="display:none;"><div class="card"><h3>🎬 مكتبة الفيديوهات</h3><div style="background:#0f172a; border-radius:1rem; padding:1rem; margin-bottom:1rem;"><h4>➕ إضافة فيديو</h4><div class="form-group"><label>عنوان الفيديو</label><input type="text" id="videoTitle"></div><div class="form-group"><label>رابط الفيديو (YouTube Embed)</label><input type="text" id="videoUrl"></div><div class="form-group"><label>المادة</label><select id="videoSubject"><option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option><option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option></select></div><button class="btn btn-primary" onclick="addVideo()">➕ رفع الفيديو</button></div><div id="videosList" class="videos-grid"></div></div></div>
 
-    <!-- تبويب كتم الطلاب -->
-    <div id="tab-mute" style="display:none;">
-        <div class="card">
-            <h3>🔇 تحكم الطلاب (كتم/إلغاء كتم)</h3>
-            <div id="studentsMuteList" class="answers-list"></div>
-        </div>
-    </div>
+    <div id="tab-mute" style="display:none;"><div class="card"><h3>🔇 كتم الطلاب</h3><div id="studentsMuteList" class="answers-list"></div></div></div>
 
-    <!-- تبويب الملفات والملخصات (رفع حقيقي + فتح + تحميل) -->
     <div id="tab-studyFiles" style="display:none;">
         <div class="card">
             <h3>📄 رفع ملخصات وملفات تعليمية</h3>
-            <div style="background: #0f172a; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem;">
-                <div class="form-group"><label>عنوان الملف/الملخص</label><input type="text" id="fileName" placeholder="مثال: ملخص درس الرياضيات"></div>
+            <div style="background:#0f172a; border-radius:1rem; padding:1rem; margin-bottom:1rem;">
+                <div class="form-group"><label>عنوان الملف</label><input type="text" id="fileName" placeholder="مثال: ملخص درس الرياضيات"></div>
                 <div class="form-group"><label>المادة/التصنيف</label>
-                    <select id="fileSubject">
-                        <option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option>
-                        <option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option>
-                    </select>
+                    <select id="fileSubject"><option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option><option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option></select>
                 </div>
-                <div class="form-group">
-                    <label>📁 اختر الملف من جهازك</label>
-                    <input type="file" id="realFileInput" accept=".pdf,.jpg,.png,.jpeg,.doc,.docx,.ppt,.pptx">
-                    <div id="filePreview" class="file-preview"></div>
-                </div>
-                <div class="form-group">
-                    <label>📊 حالة الرفع</label>
-                    <div class="progress-bar-container"><div id="uploadProgressBar" class="progress-fill"></div></div>
-                    <div id="uploadStatus" style="margin-top: 5px; font-size: 0.7rem; color: #cbd5e1;"></div>
-                </div>
+                <div class="form-group"><label>📁 اختر الملف من جهازك</label><input type="file" id="realFileInput" accept=".pdf,.jpg,.png,.jpeg,.doc,.docx,.ppt,.pptx"><div id="filePreview" class="file-preview"></div></div>
+                <div class="form-group"><label>📊 حالة الرفع</label><div class="progress-bar-container"><div id="uploadProgressBar" class="progress-fill"></div></div><div id="uploadStatus" style="margin-top:5px; font-size:0.7rem; color:#cbd5e1;"></div></div>
                 <button class="btn btn-primary" id="uploadRealFileBtn">🚀 رفع الملف الآن</button>
             </div>
             <div id="studyFilesList" class="answers-list"></div>
@@ -236,18 +154,10 @@
     }
 
     function logoutNow() { auth.signOut().then(() => window.location.href = "login.html"); }
-
-    function showTab(tab) {
-        document.querySelectorAll("[id^='tab-']").forEach(el => el.style.display = "none");
-        document.getElementById(`tab-${tab}`).style.display = tab==="answers" ? "grid" : "block";
-        if (tab === "quiz") loadQuestions();
-        if (tab === "schedule") loadSchedule();
-        if (tab === "students") loadStudents();
-        if (tab === "stats") loadStats();
-        if (tab === "leaderboard") loadLeaderboard();
-        if (tab === "videos") loadVideos();
-        if (tab === "mute") loadMuteList();
-        if (tab === "studyFiles") loadStudyFiles();
+    function showTab(tab) { document.querySelectorAll("[id^='tab-']").forEach(el => el.style.display = "none"); document.getElementById(`tab-${tab}`).style.display = tab==="answers" ? "grid" : "block";
+        if (tab === "quiz") loadQuestions(); if (tab === "schedule") loadSchedule(); if (tab === "students") loadStudents();
+        if (tab === "stats") loadStats(); if (tab === "leaderboard") loadLeaderboard(); if (tab === "videos") loadVideos();
+        if (tab === "mute") loadMuteList(); if (tab === "studyFiles") loadStudyFiles();
     }
 
     // Timer
@@ -268,288 +178,62 @@
             let d = new Date(), url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=24.4539&longitude=54.3773&method=8&timezonestring=Asia/Dubai`;
             let res = await fetch(url), data = await res.json();
             if (data.code === 200) {
-                let timings = data.data.timings;
-                let prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
-                let names = ["الفجر","الظهر","العصر","المغرب","العشاء"];
-                let html = "";
-                for (let i=0;i<prayers.length;i++) html += `<div class="prayer-item"><div>${names[i]}</div><div>${timings[prayers[i]]}</div></div>`;
+                let timings = data.data.timings, prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"], names = ["الفجر","الظهر","العصر","المغرب","العشاء"];
+                let html = ""; for (let i=0;i<prayers.length;i++) html += `<div class="prayer-item"><div>${names[i]}</div><div>${timings[prayers[i]]}</div></div>`;
                 document.getElementById("prayerTimes").innerHTML = html;
-                let now = new Date(), nowMin = now.getHours()*60+now.getMinutes();
-                let nextTime = null, minDiff = Infinity;
-                for (let i=0;i<prayers.length;i++) {
-                    let [h,m] = timings[prayers[i]].split(":");
-                    let pm = parseInt(h)*60+parseInt(m);
-                    let diff = pm - nowMin;
-                    if (diff > 0 && diff < minDiff) { minDiff = diff; nextTime = names[i]; }
-                }
+                let now = new Date(), nowMin = now.getHours()*60+now.getMinutes(), nextTime = null, minDiff = Infinity;
+                for (let i=0;i<prayers.length;i++) { let [h,m] = timings[prayers[i]].split(":"); let pm = parseInt(h)*60+parseInt(m); let diff = pm - nowMin; if (diff > 0 && diff < minDiff) { minDiff = diff; nextTime = names[i]; } }
                 if (!nextTime) { let [h,m] = timings["Fajr"].split(":"); minDiff = (24*60-nowMin)+(parseInt(h)*60+parseInt(m)); nextTime = "الفجر"; }
-                document.getElementById("nextPrayer").innerHTML = `🕋 الصلاة القادمة: ${nextTime} بعد ${Math.floor(minDiff/60)} س و ${minDiff%60} د`;
+                document.getElementById("nextPrayer").innerHTML = `🕋 القادمة: ${nextTime} بعد ${Math.floor(minDiff/60)} س و ${minDiff%60} د`;
             }
         } catch(e) { console.warn(e); }
     }
 
     // الإجابات
     let allSubmissions = [];
-    async function loadSubmissions() {
-        let snap = await db.ref("submissions").once("value");
-        let data = snap.val()||{};
-        allSubmissions = Object.entries(data).map(([id,val])=>({id,...val})).reverse();
-        renderAnswers();
-    }
-    function renderAnswers() {
-        let search = document.getElementById("searchInput")?.value.toLowerCase()||"";
-        let filtered = allSubmissions.filter(s=>s.studentName?.toLowerCase().includes(search)||s.text?.toLowerCase().includes(search));
-        let container = document.getElementById("answersList");
-        if (!filtered.length) { container.innerHTML = "<div class='card'>✨ لا إجابات حالياً</div>"; return; }
-        let html = "";
-        filtered.forEach(sub => {
-            let badge = sub.grade==="correct"?"<span class='badge-correct'>✓ صحيح +5</span>":(sub.grade==="wrong"?"<span class='badge-wrong'>✗ خطأ</span>":"<span class='badge-pending'>⏳ قيد المراجعة</span>");
-            html += `<div class="answer-card">
-                <div class="flex-between"><div><strong>${escapeHtml(sub.studentName)}</strong> <small>${new Date(sub.timestamp).toLocaleString()}</small></div>${badge}</div>
-                <div>${sub.text?escapeHtml(sub.text):""} ${sub.imageUrl?`<a href="${sub.imageUrl}" target="_blank">🖼️ صورة</a>`:""}</div>
-                <div>${sub.feedback?`📩 ${escapeHtml(sub.feedback)}`:""}</div>
-                <div class="btns">
-                    <button class="btn btn-success" onclick="gradeSub('${sub.id}','correct')">✔️ صحيح</button>
-                    <button class="btn btn-danger" onclick="gradeSub('${sub.id}','wrong')">❌ خطأ</button>
-                    <button class="btn" onclick="sendMsgToStudent('${sub.id}')">💬 رسالة</button>
-                    <button class="btn btn-danger" onclick="deleteSub('${sub.id}')">🗑️ حذف</button>
-                </div>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-    window.gradeSub = async (id, grade) => {
-        let subRef = db.ref(`submissions/${id}`);
-        let sub = (await subRef.once("value")).val();
-        if (!sub) return;
-        let msg = grade==="correct"?"✅ أحسنت! +5 نقاط":"❌ حاول مرة أخرى";
-        await subRef.update({ grade, feedback: msg });
-        if (grade==="correct") {
-            let pointsRef = db.ref(`users/${sub.studentId}/points`);
-            let cur = (await pointsRef.once("value")).val()||0;
-            await pointsRef.set(cur+5);
-        }
-        loadSubmissions();
-    };
-    window.sendMsgToStudent = async (id) => {
-        let msg = prompt("📝 أكتب رسالتك للطالب:");
-        if (msg) await db.ref(`submissions/${id}`).update({ feedback: msg });
-        loadSubmissions();
-    };
+    async function loadSubmissions() { let snap = await db.ref("submissions").once("value"); let data = snap.val()||{}; allSubmissions = Object.entries(data).map(([id,val])=>({id,...val})).reverse(); renderAnswers(); }
+    function renderAnswers() { let search = document.getElementById("searchInput")?.value.toLowerCase()||""; let filtered = allSubmissions.filter(s=>s.studentName?.toLowerCase().includes(search)||s.text?.toLowerCase().includes(search)); let container = document.getElementById("answersList"); if (!filtered.length) { container.innerHTML = "<div class='card'>✨ لا إجابات حالياً</div>"; return; } let html = ""; filtered.forEach(sub => { let badge = sub.grade==="correct"?"<span class='badge-correct'>✓ صحيح +5</span>":(sub.grade==="wrong"?"<span class='badge-wrong'>✗ خطأ</span>":"<span class='badge-pending'>⏳ قيد</span>"); html += `<div class="answer-card"><div class="flex-between"><div><strong>${escapeHtml(sub.studentName)}</strong> <small>${new Date(sub.timestamp).toLocaleString()}</small></div>${badge}</div><div>${sub.text?escapeHtml(sub.text):""} ${sub.imageUrl?`<a href="${sub.imageUrl}" target="_blank">🖼️ صورة</a>`:""}</div><div>${sub.feedback?`📩 ${escapeHtml(sub.feedback)}`:""}</div><div class="btns"><button class="btn btn-success" onclick="gradeSub('${sub.id}','correct')">✔️ صحيح</button><button class="btn btn-danger" onclick="gradeSub('${sub.id}','wrong')">❌ خطأ</button><button class="btn" onclick="sendMsgToStudent('${sub.id}')">💬 رسالة</button><button class="btn btn-danger" onclick="deleteSub('${sub.id}')">🗑️ حذف</button></div></div>`; }); container.innerHTML = html; }
+    window.gradeSub = async (id, grade) => { let subRef = db.ref(`submissions/${id}`); let sub = (await subRef.once("value")).val(); if (!sub) return; let msg = grade==="correct"?"✅ أحسنت! +5 نقاط":"❌ حاول مرة أخرى"; await subRef.update({ grade, feedback: msg }); if (grade==="correct") { let pointsRef = db.ref(`users/${sub.studentId}/points`); let cur = (await pointsRef.once("value")).val()||0; await pointsRef.set(cur+5); } loadSubmissions(); };
+    window.sendMsgToStudent = async (id) => { let msg = prompt("📝 أكتب رسالتك للطالب:"); if (msg) await db.ref(`submissions/${id}`).update({ feedback: msg }); loadSubmissions(); };
     window.deleteSub = async (id) => { if (confirm("حذف الإجابة؟")) { await db.ref(`submissions/${id}`).remove(); loadSubmissions(); } };
-    window.sendBroadcastNow = async () => {
-        let msg = document.getElementById("broadcastMsg").value.trim();
-        if (!msg) return alert("اكتب رسالة");
-        await db.ref("broadcast").push({ message: msg, time: Date.now() });
-        alert("✅ أرسلت للجميع");
-        document.getElementById("broadcastMsg").value = "";
-    };
+    window.sendBroadcastNow = async () => { let msg = document.getElementById("broadcastMsg").value.trim(); if (!msg) return alert("اكتب رسالة"); await db.ref("broadcast").push({ message: msg, time: Date.now() }); alert("✅ أرسلت للجميع"); document.getElementById("broadcastMsg").value = ""; };
     function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" })[m]); }
 
     // الأسئلة
     let questions = [];
-    async function loadQuestions() {
-        let snap = await db.ref("quiz").once("value");
-        questions = Object.entries(snap.val()||{}).map(([id,q])=>({id,...q}));
-        let cont = document.getElementById("questionsList");
-        if (!questions.length) { cont.innerHTML = "<div class='card'>📭 لا توجد أسئلة بعد</div>"; return; }
-        let html = "";
-        questions.forEach((q,i) => {
-            html += `<div class="answer-card"><div><strong>سؤال ${i+1}:</strong> ${escapeHtml(q.question)}</div><div>${(q.options||[]).map((opt,idx)=>`${idx+1}- ${opt} ${idx===q.correct?"✅":""}`).join(" | ")}</div><div>⏱️ ${q.time||30} ث | ⭐ ${q.points||5}</div><div class="btns"><button class="btn btn-primary" onclick="editQuestionPrompt('${q.id}')">✏️ تعديل</button><button class="btn btn-danger" onclick="deleteQuestion('${q.id}')">🗑️ حذف</button></div></div>`;
-        });
-        cont.innerHTML = html;
-    }
-    window.addQuestion = () => {
-        let q = document.getElementById("newQuestion").value.trim();
-        let opts = [document.getElementById("opt0").value.trim(), document.getElementById("opt1").value.trim(), document.getElementById("opt2").value.trim(), document.getElementById("opt3").value.trim()].filter(o=>o);
-        let correct = parseInt(document.getElementById("correctIdx").value)-1;
-        if (!q || opts.length<2 || isNaN(correct)) { alert("املأ السؤال و الخيارات و الرقم الصحيح"); return; }
-        db.ref("quiz").push({ question: q, options: opts, correct, published: false, time: 30, points: 5 });
-        alert("✅ تمت الإضافة");
-        document.getElementById("newQuestion").value = ""; ["opt0","opt1","opt2","opt3","correctIdx"].forEach(id=>document.getElementById(id).value="");
-        loadQuestions();
-    };
-    window.publishAll = async () => {
-        if (!questions.length) return alert("لا توجد أسئلة");
-        for (let q of questions) await db.ref(`quiz/${q.id}`).update({ published: true });
-        alert("✅ تم نشر جميع الأسئلة للطلاب");
-        loadQuestions();
-    };
+    async function loadQuestions() { let snap = await db.ref("quiz").once("value"); questions = Object.entries(snap.val()||{}).map(([id,q])=>({id,...q})); let cont = document.getElementById("questionsList"); if (!questions.length) { cont.innerHTML = "<div class='card'>📭 لا توجد أسئلة</div>"; return; } let html = ""; questions.forEach((q,i) => { html += `<div class="answer-card"><div><strong>سؤال ${i+1}:</strong> ${escapeHtml(q.question)}</div><div>${(q.options||[]).map((opt,idx)=>`${idx+1}- ${opt} ${idx===q.correct?"✅":""}`).join(" | ")}</div><div>⏱️ ${q.time||30} ث | ⭐ ${q.points||5}</div><div class="btns"><button class="btn btn-primary" onclick="editQuestionPrompt('${q.id}')">✏️ تعديل</button><button class="btn btn-danger" onclick="deleteQuestion('${q.id}')">🗑️ حذف</button></div></div>`; }); cont.innerHTML = html; }
+    window.addQuestion = () => { let q = document.getElementById("newQuestion").value.trim(); let opts = [document.getElementById("opt0").value.trim(), document.getElementById("opt1").value.trim(), document.getElementById("opt2").value.trim(), document.getElementById("opt3").value.trim()].filter(o=>o); let correct = parseInt(document.getElementById("correctIdx").value)-1; if (!q || opts.length<2 || isNaN(correct)) { alert("املأ البيانات"); return; } db.ref("quiz").push({ question: q, options: opts, correct, published: false, time: 30, points: 5 }); alert("✅ تمت الإضافة"); document.getElementById("newQuestion").value = ""; ["opt0","opt1","opt2","opt3","correctIdx"].forEach(id=>document.getElementById(id).value=""); loadQuestions(); };
+    window.publishAll = async () => { if (!questions.length) return alert("لا توجد أسئلة"); for (let q of questions) await db.ref(`quiz/${q.id}`).update({ published: true }); alert("✅ تم نشر جميع الأسئلة"); loadQuestions(); };
     window.deleteQuestion = async (id) => { if (confirm("حذف السؤال؟")) { await db.ref(`quiz/${id}`).remove(); loadQuestions(); } };
-    window.editQuestionPrompt = async (id) => {
-        let q = questions.find(qq=>qq.id===id);
-        if (!q) return;
-        let newQ = prompt("السؤال الجديد:", q.question);
-        if (!newQ) return;
-        let newOpts = prompt("الخيارات مفصولة بفاصلة:", q.options.join(","));
-        if (!newOpts) return;
-        let newCorrect = prompt("رقم الإجابة الصحيحة (1-4):", (q.correct+1));
-        await db.ref(`quiz/${id}`).update({ question: newQ, options: newOpts.split(","), correct: parseInt(newCorrect)-1 });
-        loadQuestions();
-    };
+    window.editQuestionPrompt = async (id) => { let q = questions.find(qq=>qq.id===id); if (!q) return; let newQ = prompt("السؤال الجديد:", q.question); if (!newQ) return; let newOpts = prompt("الخيارات:", q.options.join(",")); if (!newOpts) return; let newCorrect = prompt("رقم الإجابة الصحيحة:", (q.correct+1)); await db.ref(`quiz/${id}`).update({ question: newQ, options: newOpts.split(","), correct: parseInt(newCorrect)-1 }); loadQuestions(); };
 
-    // جدول أسبوعي
-    async function loadSchedule() {
-        let snap = await db.ref("weekly_schedule").once("value");
-        let data = snap.val()||{};
-        let days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-        let html = "";
-        for (let day of days) {
-            if (data[day] && data[day].length) {
-                html += `<div class="schedule-day"><div><strong>📅 ${day}</strong></div>`;
-                data[day].forEach((t,idx)=> { html += `<div class="flex-between"><span>⏰ ${escapeHtml(t.time)} - ${escapeHtml(t.task)}</span><button class="btn btn-danger btn-sm" onclick="deleteTask('${day}',${idx})">🗑️</button></div>`; });
-                html += `</div>`;
-            }
-        }
-        if (!html) html = "<div class='card'>📭 لا توجد مهام</div>";
-        document.getElementById("scheduleList").innerHTML = html;
-    }
-    window.addSchedule = async () => {
-        let day = document.getElementById("weekDay").value;
-        let time = document.getElementById("taskTime").value.trim();
-        let task = document.getElementById("taskName").value.trim();
-        if (!time || !task) { alert("أدخل الوقت والمهمة"); return; }
-        let ref = db.ref(`weekly_schedule/${day}`);
-        let arr = (await ref.once("value")).val()||[];
-        arr.push({ time, task });
-        await ref.set(arr);
-        loadSchedule();
-    };
-    window.deleteTask = async (day, idx) => {
-        let ref = db.ref(`weekly_schedule/${day}`);
-        let arr = (await ref.once("value")).val()||[];
-        arr.splice(idx,1);
-        await ref.set(arr);
-        loadSchedule();
-    };
+    // الجدول
+    async function loadSchedule() { let snap = await db.ref("weekly_schedule").once("value"); let data = snap.val()||{}, days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"]; let html = ""; for (let day of days) { if (data[day] && data[day].length) { html += `<div class="schedule-day"><div><strong>📅 ${day}</strong></div>`; data[day].forEach((t,idx)=> { html += `<div class="flex-between"><span>⏰ ${escapeHtml(t.time)} - ${escapeHtml(t.task)}</span><button class="btn btn-danger btn-sm" onclick="deleteTask('${day}',${idx})">🗑️</button></div>`; }); html += `</div>`; } } if (!html) html = "<div class='card'>📭 لا مهام</div>"; document.getElementById("scheduleList").innerHTML = html; }
+    window.addSchedule = async () => { let day = document.getElementById("weekDay").value, time = document.getElementById("taskTime").value.trim(), task = document.getElementById("taskName").value.trim(); if (!time || !task) { alert("أدخل الوقت والمهمة"); return; } let ref = db.ref(`weekly_schedule/${day}`); let arr = (await ref.once("value")).val()||[]; arr.push({ time, task }); await ref.set(arr); loadSchedule(); };
+    window.deleteTask = async (day, idx) => { let ref = db.ref(`weekly_schedule/${day}`); let arr = (await ref.once("value")).val()||[]; arr.splice(idx,1); await ref.set(arr); loadSchedule(); };
 
     // الطلاب
-    async function loadStudents() {
-        let snap = await db.ref("users").once("value");
-        let users = snap.val()||{};
-        let students = Object.entries(users).filter(([_,u])=>u.role==="student").map(([id,u])=>({id,...u}));
-        let html = "";
-        for (let s of students) html += `<div class="student-item"><div><strong>${escapeHtml(s.displayName)}</strong><br>${s.email}<br>⭐ ${s.points||0}</div><button class="btn btn-danger" onclick="deleteStudent('${s.id}')">🗑️ حذف</button></div>`;
-        if (!html) html = "<div class='card'>👥 لا طلاب</div>";
-        document.getElementById("studentsList").innerHTML = html;
-    }
-    window.deleteStudent = async (uid) => { if (confirm("حذف الطالب نهائياً؟")) { await db.ref(`users/${uid}`).remove(); loadStudents(); } };
+    async function loadStudents() { let snap = await db.ref("users").once("value"); let users = snap.val()||{}, students = Object.entries(users).filter(([_,u])=>u.role==="student").map(([id,u])=>({id,...u})); let html = ""; for (let s of students) html += `<div class="student-item"><div><strong>${escapeHtml(s.displayName)}</strong><br>${s.email}<br>⭐ ${s.points||0}</div><button class="btn btn-danger" onclick="deleteStudent('${s.id}')">🗑️ حذف</button></div>`; if (!html) html = "<div class='card'>👥 لا طلاب</div>"; document.getElementById("studentsList").innerHTML = html; }
+    window.deleteStudent = async (uid) => { if (confirm("حذف الطالب؟")) { await db.ref(`users/${uid}`).remove(); loadStudents(); } };
 
     // إحصائيات
-    async function loadStats() {
-        let subs = await db.ref("submissions").once("value");
-        let submissions = Object.values(subs.val()||{});
-        let correct = submissions.filter(s=>s.grade==="correct").length;
-        let total = submissions.length;
-        let rate = total?Math.round((correct/total)*100):0;
-        let usersSnap = await db.ref("users").once("value");
-        let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student");
-        let totalPoints = students.reduce((sum,s)=>sum+(s.points||0),0);
-        document.getElementById("statsBox").innerHTML = `
-            <div class="card">👥 عدد الطلاب: ${students.length}</div>
-            <div class="card">📝 إجمالي الإجابات: ${total}</div>
-            <div class="card">✅ نسبة الإجابات الصحيحة: ${rate}%</div>
-            <div class="card">⭐ مجموع النقاط: ${totalPoints}</div>
-        `;
-    }
+    async function loadStats() { let subs = await db.ref("submissions").once("value"); let submissions = Object.values(subs.val()||{}); let correct = submissions.filter(s=>s.grade==="correct").length, total = submissions.length, rate = total?Math.round((correct/total)*100):0; let usersSnap = await db.ref("users").once("value"); let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student"); let totalPoints = students.reduce((sum,s)=>sum+(s.points||0),0); document.getElementById("statsBox").innerHTML = `<div class="card">👥 الطلاب: ${students.length}</div><div class="card">📝 الإجابات: ${total}</div><div class="card">✅ نسبة الصحيح: ${rate}%</div><div class="card">⭐ مجموع النقاط: ${totalPoints}</div>`; }
 
     // لوحة المتصدرين
-    async function loadLeaderboard() {
-        let usersSnap = await db.ref("users").once("value");
-        let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student");
-        students.sort((a,b)=>(b.points||0)-(a.points||0));
-        let html = "";
-        students.forEach((s,i)=> {
-            html += `<div class="leaderboard-item"><div><strong>${i+1}.</strong> ${escapeHtml(s.displayName)}</div><div>⭐ ${s.points||0}</div></div>`;
-        });
-        if (!html) html = "<div class='card'>🏆 لا توجد نقاط بعد</div>";
-        document.getElementById("leaderboardBox").innerHTML = html;
-    }
+    async function loadLeaderboard() { let usersSnap = await db.ref("users").once("value"); let students = Object.values(usersSnap.val()||{}).filter(u=>u.role==="student"); students.sort((a,b)=>(b.points||0)-(a.points||0)); let html = ""; students.forEach((s,i)=> { html += `<div class="leaderboard-item"><div><strong>${i+1}.</strong> ${escapeHtml(s.displayName)}</div><div>⭐ ${s.points||0}</div></div>`; }); if (!html) html = "<div class='card'>🏆 لا نقاط</div>"; document.getElementById("leaderboardBox").innerHTML = html; }
 
     // الفيديوهات
-    async function loadVideos() {
-        const snapshot = await db.ref('videos').once('value');
-        const videos = snapshot.val() || {};
-        const container = document.getElementById('videosList');
-        if (!container) return;
-        if (Object.keys(videos).length === 0) {
-            container.innerHTML = '<div class="card">🎬 لا توجد فيديوهات</div>';
-            return;
-        }
-        let html = '';
-        for (let id in videos) {
-            const v = videos[id];
-            html += `<div class="video-card" onclick="playVideo('${v.url}')">
-                <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); height: 150px; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🎬</div>
-                <div style="padding: 0.8rem;"><div style="font-weight: bold;">${escapeHtml(v.title)}</div><div style="font-size: 0.7rem; background: #3b82f6; display: inline-block; padding: 0.2rem 0.5rem; border-radius: 1rem;">📚 ${escapeHtml(v.subject)}</div><div><button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteVideo('${id}')">🗑️ حذف</button></div></div>
-            </div>`;
-        }
-        container.innerHTML = html;
-    }
-
-    window.addVideo = async () => {
-        const title = document.getElementById('videoTitle')?.value.trim();
-        const url = document.getElementById('videoUrl')?.value.trim();
-        const subject = document.getElementById('videoSubject')?.value;
-        if (!title || !url) { alert('الرجاء إدخال عنوان ورابط الفيديو'); return; }
-        await db.ref('videos').push({ title, url, subject, uploadedBy: currentUser.uid, uploadedAt: Date.now() });
-        alert('✅ تم إضافة الفيديو');
-        document.getElementById('videoTitle').value = '';
-        document.getElementById('videoUrl').value = '';
-        loadVideos();
-    };
-
-    window.deleteVideo = async (id) => {
-        if (confirm('حذف هذا الفيديو؟')) { await db.ref(`videos/${id}`).remove(); loadVideos(); }
-    };
-
-    window.playVideo = (url) => {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `<div class="modal-content"><iframe src="${url}" frameborder="0" allowfullscreen style="width:100%; height:400px; border-radius:1rem;"></iframe><button class="btn btn-primary" style="margin-top:1rem;" onclick="this.closest('.modal-overlay').remove()">إغلاق</button></div>`;
-        document.body.appendChild(modal);
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-    };
+    async function loadVideos() { const snap = await db.ref('videos').once('value'); const videos = snap.val() || {}; const cont = document.getElementById('videosList'); if (!cont) return; if (Object.keys(videos).length === 0) { cont.innerHTML = '<div class="card">🎬 لا فيديوهات</div>'; return; } let html = ''; for (let id in videos) { const v = videos[id]; html += `<div class="video-card" onclick="playVideo('${v.url}')"><div style="background:linear-gradient(135deg,#3b82f6,#8b5cf6); height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem;">🎬</div><div style="padding:0.8rem;"><div style="font-weight:bold;">${escapeHtml(v.title)}</div><div style="font-size:0.7rem; background:#3b82f6; display:inline-block; padding:0.2rem 0.5rem; border-radius:1rem;">📚 ${escapeHtml(v.subject)}</div><div><button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteVideo('${id}')">🗑️ حذف</button></div></div></div>`; } cont.innerHTML = html; }
+    window.addVideo = async () => { const title = document.getElementById('videoTitle')?.value.trim(), url = document.getElementById('videoUrl')?.value.trim(), subject = document.getElementById('videoSubject')?.value; if (!title || !url) { alert('أدخل عنوان ورابط الفيديو'); return; } await db.ref('videos').push({ title, url, subject, uploadedBy: currentUser.uid, uploadedAt: Date.now() }); alert('✅ تمت الإضافة'); document.getElementById('videoTitle').value = ''; document.getElementById('videoUrl').value = ''; loadVideos(); };
+    window.deleteVideo = async (id) => { if (confirm('حذف الفيديو؟')) { await db.ref(`videos/${id}`).remove(); loadVideos(); } };
+    window.playVideo = (url) => { const modal = document.createElement('div'); modal.className = 'modal-overlay'; modal.innerHTML = `<div class="modal-content"><iframe src="${url}" frameborder="0" allowfullscreen style="width:100%; height:400px; border-radius:1rem;"></iframe><button class="btn btn-primary" style="margin-top:1rem;" onclick="this.closest('.modal-overlay').remove()">إغلاق</button></div>`; document.body.appendChild(modal); modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); }); };
 
     // كتم الطلاب
-    async function loadMuteList() {
-        const usersSnap = await db.ref('users').once('value');
-        const users = usersSnap.val() || {};
-        const students = [];
-        for (let uid in users) if (users[uid].role === 'student') students.push({ uid, ...users[uid] });
-        const mutedSnap = await db.ref('mutedStudents').once('value');
-        const muted = mutedSnap.val() || {};
-        const now = Date.now();
-        const container = document.getElementById('studentsMuteList');
-        if (!container) return;
-        if (students.length === 0) { container.innerHTML = '<div class="card">👥 لا يوجد طلاب</div>'; return; }
-        let html = '';
-        for (let s of students) {
-            const isMuted = muted[s.uid] && muted[s.uid].mutedUntil > now;
-            const timeLeft = isMuted ? Math.ceil((muted[s.uid].mutedUntil - now) / 1000 / 60) : 0;
-            html += `<div class="answer-card">
-                <div class="flex-between">
-                    <div><strong>${escapeHtml(s.displayName)}</strong>${isMuted ? `<span class="muted-badge">🔇 مكتوم (${timeLeft} دقيقة)</span>` : ''}</div>
-                    <div>${!isMuted ? `<button class="btn" style="background:#f59e0b;" onclick="muteStudent('${s.uid}', '${escapeHtml(s.displayName)}')">🔇 كتم</button>` : `<button class="btn btn-success" onclick="unmuteStudent('${s.uid}')">🎤 إلغاء الكتم</button>`}</div>
-                </div>
-            </div>`;
-        }
-        container.innerHTML = html;
-    }
+    async function loadMuteList() { const usersSnap = await db.ref('users').once('value'); const users = usersSnap.val() || {}; const students = []; for (let uid in users) if (users[uid].role === 'student') students.push({ uid, ...users[uid] }); const mutedSnap = await db.ref('mutedStudents').once('value'); const muted = mutedSnap.val() || {}; const now = Date.now(); const cont = document.getElementById('studentsMuteList'); if (!cont) return; if (students.length === 0) { cont.innerHTML = '<div class="card">👥 لا طلاب</div>'; return; } let html = ''; for (let s of students) { const isMuted = muted[s.uid] && muted[s.uid].mutedUntil > now; const timeLeft = isMuted ? Math.ceil((muted[s.uid].mutedUntil - now) / 1000 / 60) : 0; html += `<div class="answer-card"><div class="flex-between"><div><strong>${escapeHtml(s.displayName)}</strong>${isMuted ? `<span class="muted-badge">🔇 مكتوم (${timeLeft} د)</span>` : ''}</div><div>${!isMuted ? `<button class="btn" style="background:#f59e0b;" onclick="muteStudent('${s.uid}', '${escapeHtml(s.displayName)}')">🔇 كتم</button>` : `<button class="btn btn-success" onclick="unmuteStudent('${s.uid}')">🎤 إلغاء</button>`}</div></div></div>`; } cont.innerHTML = html; }
+    window.muteStudent = async (uid, name) => { const minutes = parseInt(prompt(`كم دقيقة تريد كتم "${name}"؟`, 5)); if (isNaN(minutes) || minutes < 1) return; await db.ref(`mutedStudents/${uid}`).set({ mutedUntil: Date.now() + (minutes * 60 * 1000), mutedBy: currentUser.uid, mutedAt: Date.now() }); alert(`✅ تم كتم ${name} لمدة ${minutes} دقائق`); loadMuteList(); };
+    window.unmuteStudent = async (uid) => { if (confirm('إلغاء الكتم؟')) { await db.ref(`mutedStudents/${uid}`).remove(); alert('✅ تم إلغاء الكتم'); loadMuteList(); } };
 
-    window.muteStudent = async (uid, name) => {
-        const minutes = parseInt(prompt(`كم دقيقة تريد كتم "${name}"؟`, 5));
-        if (isNaN(minutes) || minutes < 1) return;
-        await db.ref(`mutedStudents/${uid}`).set({ mutedUntil: Date.now() + (minutes * 60 * 1000), mutedBy: currentUser.uid, mutedAt: Date.now() });
-        alert(`✅ تم كتم ${name} لمدة ${minutes} دقائق`);
-        loadMuteList();
-    };
-
-    window.unmuteStudent = async (uid) => {
-        if (confirm('إلغاء كتم هذا الطالب؟')) { await db.ref(`mutedStudents/${uid}`).remove(); alert('✅ تم إلغاء الكتم'); loadMuteList(); }
-    };
-
-    // ========== رفع الملفات الحقيقية (من الجهاز) مع إضافة access_mode ==========
+    // ========== رفع الملفات (مع زر تحميل يعمل 100%) ==========
     document.getElementById('realFileInput')?.addEventListener('change', (event) => {
         selectedFile = event.target.files[0];
         const previewDiv = document.getElementById('filePreview');
@@ -573,8 +257,12 @@
         formData.append('file', selectedFile);
         formData.append('upload_preset', 'focus_mode_preset');
         formData.append('cloud_name', 'dt1lrpvhq');
-        formData.append('access_mode', 'public');      // ✅ السطر الجديد
-        formData.append('resource_type', 'auto');      // ✅ السطر الجديد
+        
+        if (selectedFile.type === 'application/pdf') {
+            formData.append('resource_type', 'raw');
+        } else {
+            formData.append('resource_type', 'auto');
+        }
         
         const progressBar = document.getElementById('uploadProgressBar');
         const statusDiv = document.getElementById('uploadStatus');
@@ -586,15 +274,22 @@
                 method: 'POST', 
                 body: formData 
             });
-            progressBar.style.width = '70%';
-            if (!response.ok) throw new Error('فشل الرفع');
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'فشل الرفع');
+            }
+            
             const data = await response.json();
+            progressBar.style.width = '70%';
+            const finalUrl = data.secure_url;
+            
             progressBar.style.width = '90%';
             statusDiv.innerText = '💾 جاري الحفظ...';
             
             await db.ref('study_files').push({ 
                 name, 
-                url: data.secure_url, 
+                url: finalUrl, 
                 subject, 
                 type: selectedFile.type, 
                 size: selectedFile.size, 
@@ -615,8 +310,8 @@
                 progressBar.style.width = '0%'; 
                 statusDiv.innerText = ''; 
             }, 3000);
-            
         } catch (error) { 
+            console.error(error);
             statusDiv.innerHTML = '❌ فشل الرفع: ' + error.message; 
             progressBar.style.width = '0%'; 
         }
@@ -636,7 +331,7 @@
             const icon = f.type?.startsWith('image/') ? '🖼️' : (f.type?.includes('pdf') ? '📑' : '📄');
             html += `<div class="file-item">
                 <div><span style="font-size:1.2rem;">${icon}</span> <strong>${escapeHtml(f.name)}</strong><br><span style="font-size:0.7rem;">📚 ${escapeHtml(f.subject)} | 📦 ${(f.size/1024).toFixed(1)} KB</span></div>
-                <div>
+                <div style="display: flex; gap: 5px;">
                     <button class="btn btn-sm" style="background:#3b82f6;" onclick="openFilePreview('${f.url}', '${escapeHtml(f.name)}', '${f.type}')">📖 فتح</button>
                     <a href="${f.url}" download="${escapeHtml(f.name)}" target="_blank" class="btn btn-sm" style="background:#10b981; text-decoration:none;">📥 تحميل</a>
                     <button class="btn btn-danger btn-sm" onclick="deleteStudyFile('${id}')">🗑️ حذف</button>
@@ -649,11 +344,15 @@
     window.openFilePreview = (url, fileName, fileType) => {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
-        const downloadLink = `<a href="${url}" download="${fileName}" target="_blank" class="btn btn-success" style="margin-right:10px;">📥 تحميل الملف</a>`;
+        const downloadLink = `<a href="${url}" download="${fileName}" target="_blank" class="btn btn-success" style="margin-right:10px;">📥 تحميل</a>`;
         if (fileType?.startsWith('image/')) {
             modal.innerHTML = `<div class="modal-content"><img src="${url}" style="max-width:100%; max-height:60vh;"><div style="margin-top:1rem;">${downloadLink}<button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">إغلاق</button></div></div>`;
         } else if (fileType?.includes('pdf')) {
-            modal.innerHTML = `<div class="modal-content"><iframe src="${url}" style="width:100%; height:70vh;"></iframe><div style="margin-top:1rem;">${downloadLink}<button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">إغلاق</button></div></div>`;
+            let pdfUrl = url;
+            if (pdfUrl.includes('/image/upload/')) {
+                pdfUrl = pdfUrl.replace('/image/upload/', '/raw/upload/');
+            }
+            modal.innerHTML = `<div class="modal-content"><iframe src="${pdfUrl}" style="width:100%; height:70vh;"></iframe><div style="margin-top:1rem;">${downloadLink}<button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">إغلاق</button></div></div>`;
         } else {
             modal.innerHTML = `<div class="modal-content"><div style="font-size:3rem;">📄</div><div>${fileName}</div><div style="margin:1rem;">لا يمكن معاينة هذا الملف مباشرة</div><div>${downloadLink}<button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">إغلاق</button></div></div>`;
         }
