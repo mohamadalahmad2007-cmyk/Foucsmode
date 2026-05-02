@@ -34,6 +34,10 @@
         .file-item, .student-item, .leaderboard-item { background: #0f172a; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         hr { margin: 15px 0; border-color: #334155; }
         .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .image-card { background: #0f172a; border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .image-card:hover { transform: translateY(-4px); }
+        .image-card img { width: 100%; height: 150px; object-fit: cover; }
         .video-card { background: #0f172a; border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
         .video-card:hover { transform: translateY(-4px); }
         .muted-badge { background: #dc2626; padding: 2px 8px; border-radius: 1rem; font-size: 0.7rem; margin-right: 8px; }
@@ -64,8 +68,9 @@
         <button class="btn btn-outline" onclick="showTab('stats')">📊 إحصائيات</button>
         <button class="btn btn-outline" onclick="showTab('leaderboard')">🏆 المتصدرين</button>
         <button class="btn btn-outline" onclick="showTab('videos')">🎬 الفيديوهات</button>
+        <button class="btn btn-outline" onclick="showTab('images')">🖼️ الصور</button>
+        <button class="btn btn-outline" onclick="showTab('studyFiles')">📄 الملفات</button>
         <button class="btn btn-outline" onclick="showTab('mute')">🔇 كتم الطلاب</button>
-        <button class="btn btn-outline" onclick="showTab('studyFiles')">📄 ملخصات وملفات</button>
     </div>
 
     <div id="tab-answers" class="grid-2">
@@ -98,23 +103,41 @@
 
     <div id="tab-videos" style="display:none;"><div class="card"><h3>🎬 مكتبة الفيديوهات</h3><div style="background:#0f172a; border-radius:1rem; padding:1rem; margin-bottom:1rem;"><h4>➕ إضافة فيديو</h4><div class="form-group"><label>عنوان الفيديو</label><input type="text" id="videoTitle"></div><div class="form-group"><label>رابط الفيديو (YouTube Embed)</label><input type="text" id="videoUrl"></div><div class="form-group"><label>المادة</label><select id="videoSubject"><option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option><option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option></select></div><button class="btn btn-primary" onclick="addVideo()">➕ رفع الفيديو</button></div><div id="videosList" class="videos-grid"></div></div></div>
 
-    <div id="tab-mute" style="display:none;"><div class="card"><h3>🔇 كتم الطلاب</h3><div id="studentsMuteList" class="answers-list"></div></div></div>
+    <!-- ========== تبويب الصور (منفصل) ========== -->
+    <div id="tab-images" style="display:none;">
+        <div class="card">
+            <h3>🖼️ رفع صور تعليمية</h3>
+            <div style="background:#0f172a; border-radius:1rem; padding:1rem; margin-bottom:1rem;">
+                <div class="form-group"><label>عنوان الصورة</label><input type="text" id="imageName" placeholder="مثال: رسم بياني"></div>
+                <div class="form-group"><label>المادة/التصنيف</label>
+                    <select id="imageSubject"><option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option><option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option></select>
+                </div>
+                <div class="form-group"><label>📁 اختر الصورة من جهازك</label><input type="file" id="realImageInput" accept="image/*"><div id="imagePreview2" class="file-preview"></div></div>
+                <button class="btn btn-primary" id="uploadImageBtn">🚀 رفع الصورة</button>
+                <div id="imageUploadStatus" style="margin-top:5px; font-size:0.7rem; color:#cbd5e1;"></div>
+            </div>
+            <div id="imagesList" class="images-grid"></div>
+        </div>
+    </div>
 
+    <!-- ========== تبويب الملفات (PDF, DOC, etc) ========== -->
     <div id="tab-studyFiles" style="display:none;">
         <div class="card">
-            <h3>📄 رفع ملخصات وملفات تعليمية</h3>
+            <h3>📄 رفع ملفات تعليمية (PDF, DOC, PPTX)</h3>
             <div style="background:#0f172a; border-radius:1rem; padding:1rem; margin-bottom:1rem;">
                 <div class="form-group"><label>عنوان الملف</label><input type="text" id="fileName" placeholder="مثال: ملخص درس الرياضيات"></div>
                 <div class="form-group"><label>المادة/التصنيف</label>
                     <select id="fileSubject"><option>الرياضيات</option><option>العلوم</option><option>اللغة العربية</option><option>اللغة الإنجليزية</option><option>البرمجة</option><option>أخرى</option></select>
                 </div>
-                <div class="form-group"><label>📁 اختر الملف من جهازك</label><input type="file" id="realFileInput" accept=".pdf,.jpg,.png,.jpeg,.doc,.docx,.ppt,.pptx"><div id="filePreview" class="file-preview"></div></div>
+                <div class="form-group"><label>📁 اختر الملف من جهازك</label><input type="file" id="realFileInput" accept=".pdf,.doc,.docx,.ppt,.pptx"><div id="filePreview" class="file-preview"></div></div>
                 <div class="form-group"><label>📊 حالة الرفع</label><div class="progress-bar-container"><div id="uploadProgressBar" class="progress-fill"></div></div><div id="uploadStatus" style="margin-top:5px; font-size:0.7rem; color:#cbd5e1;"></div></div>
                 <button class="btn btn-primary" id="uploadRealFileBtn">🚀 رفع الملف الآن</button>
             </div>
             <div id="studyFilesList" class="answers-list"></div>
         </div>
     </div>
+
+    <div id="tab-mute" style="display:none;"><div class="card"><h3>🔇 كتم الطلاب</h3><div id="studentsMuteList" class="answers-list"></div></div></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -147,7 +170,8 @@
 
     function loadAll() {
         loadSubmissions(); loadPrayerTimes(); loadQuestions(); loadSchedule(); 
-        loadStudents(); loadStats(); loadLeaderboard(); loadVideos(); loadMuteList(); loadStudyFiles();
+        loadStudents(); loadStats(); loadLeaderboard(); loadVideos(); loadMuteList(); 
+        loadStudyFiles(); loadImages();
         setInterval(() => { if (document.getElementById("tab-answers").style.display !== "none") loadSubmissions(); }, 4000);
         setInterval(loadPrayerTimes, 60000);
         setInterval(() => { if (document.getElementById("tab-mute").style.display !== "none") loadMuteList(); }, 5000);
@@ -157,7 +181,7 @@
     function showTab(tab) { document.querySelectorAll("[id^='tab-']").forEach(el => el.style.display = "none"); document.getElementById(`tab-${tab}`).style.display = tab==="answers" ? "grid" : "block";
         if (tab === "quiz") loadQuestions(); if (tab === "schedule") loadSchedule(); if (tab === "students") loadStudents();
         if (tab === "stats") loadStats(); if (tab === "leaderboard") loadLeaderboard(); if (tab === "videos") loadVideos();
-        if (tab === "mute") loadMuteList(); if (tab === "studyFiles") loadStudyFiles();
+        if (tab === "images") loadImages(); if (tab === "mute") loadMuteList(); if (tab === "studyFiles") loadStudyFiles();
     }
 
     // Timer
@@ -233,7 +257,77 @@
     window.muteStudent = async (uid, name) => { const minutes = parseInt(prompt(`كم دقيقة تريد كتم "${name}"؟`, 5)); if (isNaN(minutes) || minutes < 1) return; await db.ref(`mutedStudents/${uid}`).set({ mutedUntil: Date.now() + (minutes * 60 * 1000), mutedBy: currentUser.uid, mutedAt: Date.now() }); alert(`✅ تم كتم ${name} لمدة ${minutes} دقائق`); loadMuteList(); };
     window.unmuteStudent = async (uid) => { if (confirm('إلغاء الكتم؟')) { await db.ref(`mutedStudents/${uid}`).remove(); alert('✅ تم إلغاء الكتم'); loadMuteList(); } };
 
-    // ========== رفع الملفات (الحل النهائي - resource_type: 'auto' للجميع) ==========
+    // ========== رفع الصور (منفصل) ==========
+    document.getElementById('realImageInput')?.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const previewDiv = document.getElementById('imagePreview2');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => { previewDiv.innerHTML = `<img src="${e.target.result}" style="max-width:100px; border-radius:8px; margin-top:5px;">`; };
+            reader.readAsDataURL(file);
+        } else { previewDiv.innerHTML = ''; }
+    });
+
+    window.uploadImageFile = async () => {
+        const name = document.getElementById('imageName').value.trim();
+        const subject = document.getElementById('imageSubject').value;
+        const file = document.getElementById('realImageInput').files[0];
+        if (!name) { alert("أدخل عنوان الصورة"); return; }
+        if (!file) { alert("اختر صورة أولاً"); return; }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'focus_unsigned');
+        formData.append('cloud_name', 'dt1lrpvhq');
+        formData.append('resource_type', 'image');
+        
+        const statusDiv = document.getElementById('imageUploadStatus');
+        statusDiv.innerText = '⏳ جاري الرفع...';
+        
+        try {
+            const response = await fetch('https://api.cloudinary.com/v1_1/dt1lrpvhq/image/upload', { 
+                method: 'POST', 
+                body: formData 
+            });
+            if (!response.ok) throw new Error('فشل الرفع');
+            const data = await response.json();
+            
+            await db.ref('images').push({ 
+                name, url: data.secure_url, subject, type: file.type, size: file.size, 
+                uploadedBy: currentUser.uid, uploadedAt: Date.now() 
+            });
+            statusDiv.innerHTML = '✅ تم رفع الصورة بنجاح!';
+            document.getElementById('imageName').value = '';
+            document.getElementById('realImageInput').value = '';
+            document.getElementById('imagePreview2').innerHTML = '';
+            loadImages();
+            setTimeout(() => statusDiv.innerText = '', 3000);
+        } catch (error) { 
+            statusDiv.innerHTML = '❌ فشل الرفع: ' + error.message; 
+        }
+    };
+    document.getElementById('uploadImageBtn')?.addEventListener('click', () => window.uploadImageFile());
+
+    async function loadImages() {
+        const snapshot = await db.ref('images').once('value');
+        const images = snapshot.val() || {};
+        const container = document.getElementById('imagesList');
+        if (!container) return;
+        if (Object.keys(images).length === 0) { container.innerHTML = '<div class="card">🖼️ لا توجد صور</div>'; return; }
+        let html = '';
+        for (let id in images) {
+            const img = images[id];
+            html += `<div class="image-card" onclick="window.open('${img.url}', '_blank')">
+                <img src="${img.url}" alt="${escapeHtml(img.name)}">
+                <div style="padding:0.8rem;"><div style="font-weight:bold;">${escapeHtml(img.name)}</div><div style="font-size:0.7rem; background:#3b82f6; display:inline-block; padding:0.2rem 0.5rem; border-radius:1rem;">📚 ${escapeHtml(img.subject)}</div><div><button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteImage('${id}')">🗑️ حذف</button></div></div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    window.deleteImage = async (id) => { if (confirm('حذف الصورة؟')) { await db.ref(`images/${id}`).remove(); loadImages(); } };
+
+    // ========== رفع الملفات ==========
     document.getElementById('realFileInput')?.addEventListener('change', (event) => {
         selectedFile = event.target.files[0];
         const previewDiv = document.getElementById('filePreview');
@@ -257,7 +351,7 @@
         formData.append('file', selectedFile);
         formData.append('upload_preset', 'focus_unsigned');
         formData.append('cloud_name', 'dt1lrpvhq');
-        formData.append('resource_type', 'auto');  // ✅ الحل السحري لجميع أنواع الملفات
+        formData.append('resource_type', 'auto');
         
         const progressBar = document.getElementById('uploadProgressBar');
         const statusDiv = document.getElementById('uploadStatus');
