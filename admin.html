@@ -233,7 +233,7 @@
     window.muteStudent = async (uid, name) => { const minutes = parseInt(prompt(`كم دقيقة تريد كتم "${name}"؟`, 5)); if (isNaN(minutes) || minutes < 1) return; await db.ref(`mutedStudents/${uid}`).set({ mutedUntil: Date.now() + (minutes * 60 * 1000), mutedBy: currentUser.uid, mutedAt: Date.now() }); alert(`✅ تم كتم ${name} لمدة ${minutes} دقائق`); loadMuteList(); };
     window.unmuteStudent = async (uid) => { if (confirm('إلغاء الكتم؟')) { await db.ref(`mutedStudents/${uid}`).remove(); alert('✅ تم إلغاء الكتم'); loadMuteList(); } };
 
-    // ========== رفع الملفات (مع زر تحميل يعمل 100%) ==========
+    // ========== رفع الملفات (الحل النهائي - resource_type: 'auto' للجميع) ==========
     document.getElementById('realFileInput')?.addEventListener('change', (event) => {
         selectedFile = event.target.files[0];
         const previewDiv = document.getElementById('filePreview');
@@ -257,12 +257,7 @@
         formData.append('file', selectedFile);
         formData.append('upload_preset', 'focus_unsigned');
         formData.append('cloud_name', 'dt1lrpvhq');
-        
-        if (selectedFile.type === 'application/pdf') {
-            formData.append('resource_type', 'raw');
-        } else {
-            formData.append('resource_type', 'auto');
-        }
+        formData.append('resource_type', 'auto');  // ✅ الحل السحري لجميع أنواع الملفات
         
         const progressBar = document.getElementById('uploadProgressBar');
         const statusDiv = document.getElementById('uploadStatus');
